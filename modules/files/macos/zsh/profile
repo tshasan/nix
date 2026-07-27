@@ -1,0 +1,15 @@
+if [ -r "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]; then
+  . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+fi
+
+[ -r "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+  [ -d /opt/homebrew/opt/rustup/bin ] && PATH="/opt/homebrew/opt/rustup/bin:$PATH"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+  [ -d /usr/local/opt/rustup/bin ] && PATH="/usr/local/opt/rustup/bin:$PATH"
+fi
+PATH="$PATH:$HOME/.local/bin"
+export PATH

@@ -1,0 +1,18 @@
+if [[ -r "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]]; then
+  source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+fi
+
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  export HOMEBREW_PREFIX=/opt/homebrew
+elif [[ -x /usr/local/bin/brew ]]; then
+  export HOMEBREW_PREFIX=/usr/local
+fi
+
+typeset -U path PATH
+if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
+  path=("$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin" $path)
+  [[ -d "$HOMEBREW_PREFIX/opt/rustup/bin" ]] && path=("$HOMEBREW_PREFIX/opt/rustup/bin" $path)
+fi
+path+=("$HOME/.local/bin")

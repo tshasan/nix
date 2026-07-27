@@ -1,0 +1,60 @@
+# nixos
+
+Personal configuration for NixOS `desktop` and `vm` hosts plus a standalone
+Home Manager `work-mac` profile.
+
+## Ownership
+
+- NixOS: NixOS/Home Manager own packages and dotfiles.
+- work-mac: Homebrew owns packages and applications; Home Manager owns
+  dotfiles only. Do not add macOS packages to Home Manager.
+- The Home Manager command itself is the sole Nix-managed program in the
+  work-mac profile.
+- Do not add repository helper scripts. Use standard Nix, Home Manager, and
+  Brew commands documented in README.md.
+
+## Structure
+
+- `flake.nix`: minimal flake-parts entry point.
+- `modules/parts.nix`: supported systems and shared flake modules.
+- `modules/checks.nix`: treefmt, pre-commit, and the development shell.
+- `modules/user.nix`: personal identity, home, SSH, and flake-location values.
+- `modules/common/`: shared NixOS modules.
+- `modules/features/`: optional NixOS features.
+- `modules/hosts/`: NixOS and standalone Home Manager outputs.
+- `modules/home/`: Home Manager modules.
+- `modules/files/`: tracked dotfile sources.
+
+`import-tree` loads every `.nix` file under `modules/`; do not add manual
+flake-level import lists.
+
+## Shell configuration
+
+`modules/files/shared/zsh/common.zsh` contains cross-platform interactive
+behavior. NixOS plugin loading stays in `modules/home/zsh.nix`; macOS plugin
+loading and PATH setup stay under `modules/files/macos/zsh/`. Brew installs the
+macOS plugins directly.
+
+## Git identities
+
+NixOS uses the personal Git identity from `flake.lib.user`. The `work-mac`
+profile includes `~/.config/git/work.conf` as its identity for every repository.
+Actual work names, emails, signing keys, domains, and other work identity values
+must never enter Nix or this repository. Keep `user.useConfigOnly=true`.
+
+## Commands
+
+- NixOS activation: `nh os switch`
+- macOS activation: `home-manager switch --flake ~/nix#work-mac`
+- Validation: `nix flake check`
+- Formatting: `nix fmt`
+
+## Rules
+
+- Keep related configuration together.
+- Prefer direct NixOS/Home Manager options over custom abstractions.
+- Use `flake.lib.user` for system account and home-path values.
+- Do not put work identity, internal names, credentials, or secrets in the
+  repository or Nix store.
+- Use explicit package and library references outside a short package list.
+- `nixfmt` is the only Nix formatter.

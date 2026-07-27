@@ -1,0 +1,30 @@
+# Extends the upstream gitleaks default ruleset with PII rules for this repo.
+# Docs: https://github.com/gitleaks/gitleaks#configuration
+#
+# The rules below are placeholders (.example is a reserved TLD) showing the
+# mechanism. Real private patterns — work email/domain, internal hostnames,
+# project codenames — belong in an untracked .gitleaks.local.toml of the same
+# shape; the pre-commit gitleaks hook runs it automatically when present, so
+# they are enforced locally without ever appearing in the repo.
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "work-email"
+description = "Work email address must not appear in this repo"
+regex = '''[A-Za-z0-9._%+-]+@yourcompany\.example\b'''
+tags = ["pii"]
+
+[[rules]]
+id = "work-domain"
+description = "Work domain reference"
+regex = '''(?i)\byourcompany\.example\b'''
+tags = ["pii"]
+
+[allowlist]
+description = "The rules files themselves name the patterns by regex"
+paths = [
+  '''\.gitleaks\.toml$''',
+  '''\.gitleaks\.local\.toml$''',
+]

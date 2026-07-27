@@ -1,0 +1,12 @@
+result
+result-*
+nvim.log
+*.bak
+*.preFix
+*.preWarnFix
+*.regression-pre-fix
+.direnv/
+.pre-commit-config.yaml
+.claude/settings.local.json
+.gitleaks.local.toml
+.work-mac-private-manifest

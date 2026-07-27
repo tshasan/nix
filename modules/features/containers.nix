@@ -1,0 +1,9 @@
+_: {
+  flake.nixosModules.containers = _: {
+    virtualisation.podman = {
+      enable = true;
+      dockerCompat = true;
+      defaultNetwork.settings.dns_enabled = true;
+    };
+  };
+}

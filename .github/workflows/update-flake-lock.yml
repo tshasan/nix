@@ -1,0 +1,29 @@
+name: update-flake-lock
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - uses: DeterminateSystems/update-flake-lock@main
+        id: update
+        with:
+          token: ${{ secrets.FLAKE_LOCK_TOKEN }}
+          pr-title: "chore(flake): update flake.lock"
+          pr-labels: |
+            automerge
+            dependencies
+          commit-msg: "chore(flake): update flake.lock"
+      - if: steps.update.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ secrets.FLAKE_LOCK_TOKEN }}
+        run: gh pr merge --auto --squash "${{ steps.update.outputs.pull-request-number }}"
