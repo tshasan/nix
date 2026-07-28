@@ -18,3 +18,4 @@ if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
     fpath=("$HOMEBREW_PREFIX/share/zsh/site-functions" $fpath)
 fi
 path+=("$HOME/.local/bin")
+[[ -d "$HOME/.cargo/bin" ]] && path+=("$HOME/.cargo/bin")
