@@ -3,8 +3,8 @@ _: {
   flake.lib.user = {
     username = "taimur";
     homeDirectory = "/home/taimur";
-    darwinUsername = "thasan";
-    darwinHomeDirectory = "/Users/thasan";
+    darwinUsername = "taimurhasan";
+    darwinHomeDirectory = "/Users/taimurhasan";
     fullName = "Taimur Hasan";
     email = "me@tshasan.com";
     flakeUrl = "github:tshasan/nix";
