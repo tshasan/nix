@@ -93,6 +93,7 @@
           "git/ignore".source = ../files/macos/git/ignore;
           "nix/nix.conf".source = ../files/macos/nix/nix.conf;
           "zsh/common.zsh".source = ../files/shared/zsh/common.zsh;
+          "zsh/local/gecko.zsh".source = ../files/macos/zsh/gecko.zsh;
         };
       };
 
