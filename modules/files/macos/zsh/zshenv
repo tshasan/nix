@@ -10,9 +10,11 @@ elif [[ -x /usr/local/bin/brew ]]; then
   export HOMEBREW_PREFIX=/usr/local
 fi
 
-typeset -U path PATH
+typeset -U path PATH fpath FPATH
 if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
   path=("$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin" $path)
   [[ -d "$HOMEBREW_PREFIX/opt/rustup/bin" ]] && path=("$HOMEBREW_PREFIX/opt/rustup/bin" $path)
+  [[ -d "$HOMEBREW_PREFIX/share/zsh/site-functions" ]] &&
+    fpath=("$HOMEBREW_PREFIX/share/zsh/site-functions" $fpath)
 fi
 path+=("$HOME/.local/bin")
