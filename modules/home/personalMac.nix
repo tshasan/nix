@@ -3,7 +3,6 @@
   flake.homeModules.personalMac =
     {
       config,
-      lib,
       pkgs,
       ...
     }:
