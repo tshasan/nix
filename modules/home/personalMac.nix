@@ -21,6 +21,10 @@
         packages = with pkgs; [
           neovim
           kitty
+          bitwarden-desktop
+          iina
+          spotify
+          vesktop
           fd
           ripgrep
           tree-sitter
