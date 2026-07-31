@@ -6,6 +6,8 @@
       {
         nixpkgs.hostPlatform = "aarch64-darwin";
 
+        users.users.${self.lib.user.darwinUsername}.home = self.lib.user.darwinHomeDirectory;
+
         networking = {
           hostName = "personal-mac";
           computerName = "personal-mac";
@@ -22,43 +24,51 @@
           ];
         };
 
+        nixpkgs.config.allowUnfree = true;
+
         security.pam.services.sudo_local = {
           enable = true;
           touchIdAuth = true;
         };
 
-        system.defaults = {
-          NSGlobalDomain = {
-            InitialKeyRepeat = 15;
-            KeyRepeat = 2;
-            ApplePressAndHoldEnabled = false;
-            AppleInterfaceStyle = "Dark";
-            NSAutomaticSpellingCorrectionEnabled = false;
-            NSAutomaticCapitalizationEnabled = false;
-            NSAutomaticQuoteSubstitutionEnabled = false;
-            NSAutomaticDashSubstitutionEnabled = false;
-            NSAutomaticPeriodSubstitutionEnabled = false;
-            NSDocumentSaveNewDocumentsToCloud = false;
+        system = {
+          primaryUser = self.lib.user.darwinUsername;
+
+          defaults = {
+            NSGlobalDomain = {
+              InitialKeyRepeat = 15;
+              KeyRepeat = 2;
+              ApplePressAndHoldEnabled = false;
+              AppleInterfaceStyle = "Dark";
+              NSAutomaticSpellingCorrectionEnabled = false;
+              NSAutomaticCapitalizationEnabled = false;
+              NSAutomaticQuoteSubstitutionEnabled = false;
+              NSAutomaticDashSubstitutionEnabled = false;
+              NSAutomaticPeriodSubstitutionEnabled = false;
+              NSDocumentSaveNewDocumentsToCloud = false;
+            };
+
+            dock = {
+              autohide = true;
+              show-recents = false;
+              mru-spaces = false;
+              tilesize = 48;
+              minimize-to-application = true;
+              showhidden = true;
+            };
+
+            finder = {
+              AppleShowAllExtensions = true;
+              FXPreferredViewStyle = "clmv";
+              FXDefaultSearchScope = "SCcf";
+              ShowPathbar = true;
+              ShowStatusBar = true;
+              _FXSortFoldersFirst = true;
+              FXEnableExtensionChangeWarning = false;
+            };
           };
 
-          dock = {
-            autohide = true;
-            show-recents = false;
-            mru-spaces = false;
-            tilesize = 48;
-            minimize-to-application = true;
-            showhidden = true;
-          };
-
-          finder = {
-            AppleShowAllExtensions = true;
-            FXPreferredViewStyle = "clmv";
-            FXDefaultSearchScope = "SCcf";
-            ShowPathbar = true;
-            ShowStatusBar = true;
-            _FXSortFoldersFirst = true;
-            FXEnableExtensionChangeWarning = false;
-          };
+          stateVersion = 5;
         };
 
         programs.zsh.enable = true;
@@ -79,8 +89,6 @@
           backupFileExtension = "hm-backup";
           users.${self.lib.user.darwinUsername}.imports = [ self.homeModules.personalMac ];
         };
-
-        system.stateVersion = 5;
       }
     ];
   };
