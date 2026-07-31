@@ -1,22 +1,28 @@
 # nixos
 
-Personal configuration for two NixOS hosts and one Apple Silicon work Mac.
+Personal configuration for two NixOS hosts and two Apple Silicon Macs.
 The repository uses flake-parts, Home Manager, and a deliberately small
 platform boundary:
 
 | Target | Packages and applications | Dotfiles |
 | --- | --- | --- |
 | `desktop`, `vm` | NixOS and Home Manager | Home Manager |
+| `personal-mac` | nix-darwin and Home Manager; Homebrew for GUI casks only | Home Manager |
 | `work-mac` | Homebrew | Home Manager |
 
-The macOS profile does not install development tools, shells, or applications.
-Its only Nix-managed program is the Home Manager command used to apply the
-dotfiles.
+`work-mac` does not install development tools, shells, or applications through
+Nix. Its only Nix-managed program is the Home Manager command used to apply
+the dotfiles; Homebrew owns everything else. `personal-mac` is the opposite:
+a full nix-darwin system where Nix owns packages, dev tools, and system
+defaults, and Homebrew is limited to the casks declared in
+`modules/hosts/personal-mac/default.nix`.
 
 ## What is here
 
 - `desktop`: the main AMD/NVIDIA NixOS workstation.
 - `vm`: a smaller NixOS configuration for testing.
+- `personal-mac`: full nix-darwin system with Home Manager integrated as a
+  darwin module.
 - `work-mac`: standalone Home Manager dotfiles; no nix-darwin.
 - Shared Zsh preferences, Neovim configuration, Kitty configuration, and
   Powerlevel10k settings.
@@ -33,7 +39,7 @@ modules/
   user.nix           personal identity, home paths, and flake location
   common/            shared NixOS modules
   features/          optional NixOS features
-  hosts/             desktop, vm, and work-mac outputs
+  hosts/             desktop, vm, personal-mac, and work-mac outputs
   home/              Home Manager modules
   files/             source-controlled dotfiles
 ```
@@ -57,7 +63,59 @@ nix flake update
 Home Manager is integrated into each NixOS configuration, so there is no
 separate home activation step.
 
-## macOS
+## macOS (personal-mac, nix-darwin)
+
+The `personal-mac` output is a full nix-darwin system for Apple Silicon. Nix
+owns packages, dev tools, and system defaults; Homebrew only installs the
+casks listed under `homebrew.casks` in
+`modules/hosts/personal-mac/default.nix`.
+
+### First setup
+
+1. Install [Homebrew](https://brew.sh/) and [Nix](https://nixos.org/download/).
+   Full Xcode is only needed if you plan to build the Firefox checkout below;
+   the Xcode Command Line Tools are enough otherwise.
+2. Clone this repository to its expected location:
+
+```console
+git clone https://github.com/tshasan/nix.git ~/nix
+```
+
+3. Confirm the macOS username and home path in `modules/user.nix`.
+4. On a Mac that has never run nix-darwin, macOS's stock `/etc/zshrc` and
+   `/etc/bashrc` will collide with the files nix-darwin wants to manage. Move
+   them aside once, first:
+
+```console
+sudo mv /etc/bashrc /etc/bashrc.before-nix-darwin
+sudo mv /etc/zshrc /etc/zshrc.before-nix-darwin
+```
+
+5. Bootstrap and activate. This first run needs `sudo` because system
+   activation runs as root; it also installs `darwin-rebuild` and (via
+   Home Manager) `nh` for every later switch:
+
+```console
+cd ~/nix
+sudo nix --extra-experimental-features 'nix-command flakes' \
+  run nix-darwin -- switch --flake .#personal-mac
+```
+
+6. Open a new terminal so the nix-darwin/Home Manager PATH changes take
+   effect.
+
+After the first activation, rebuild with the same command used on the NixOS
+hosts:
+
+```console
+nh os switch
+```
+
+`homebrew.onActivation.cleanup = "zap"` means Homebrew removes any cask or
+formula not declared in this config on every switch — keep `Brewfile`-style
+additions here instead of installing ad hoc with `brew install`.
+
+## macOS (work-mac, dotfiles only)
 
 The `work-mac` output supports Apple Silicon and expects this repository at
 `~/nix`. Homebrew owns everything executable listed in `Brewfile`, including
@@ -123,6 +181,10 @@ home-manager switch --flake ~/nix#work-mac
 brew bundle cleanup --file ~/nix/Brewfile --dry-run
 ```
 
+## macOS (shared notes)
+
+These notes apply to both `personal-mac` and `work-mac`.
+
 ### Zsh
 
 The shared interactive settings are in
@@ -144,7 +206,8 @@ fragment such as `~/.config/zsh/local/work.zsh`.
 
 Identity follows the machine:
 
-- NixOS uses the personal name and email declared in `modules/user.nix`.
+- NixOS and `personal-mac` use the personal name and email declared in
+  `modules/user.nix` directly.
 - `work-mac` includes the private local file
   `~/.config/git/work.conf` for every repository.
 

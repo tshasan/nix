@@ -4,13 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Personal configuration for one user across two NixOS hosts and one Apple
-Silicon work Mac:
+Personal configuration for one user across two NixOS hosts and two Apple
+Silicon Macs:
 
 - `desktop`: main workstation.
 - `vm`: lightweight NixOS test target.
-- `work-mac`: standalone Home Manager dotfiles. Homebrew owns packages and
-  applications; do not add macOS packages to Home Manager.
+- `personal-mac`: full nix-darwin system, home-manager integrated as a
+  darwin module (same pattern as the NixOS hosts). Nix owns packages,
+  applications (via `homebrew.casks`), and system defaults.
+- `work-mac`: standalone Home Manager dotfiles only, no nix-darwin. Homebrew
+  owns packages and applications; do not add macOS packages to Home Manager.
 
 All personal account, Git identity, home path, SSH, and flake location values
 live in `modules/user.nix` as `flake.lib.user`. The work-Mac Git identity stays
@@ -19,7 +22,9 @@ switching, migration, or parity scripts.
 
 ## Commands
 
-- `nh os switch` — rebuild and activate the current host. Do **not** invoke `nixos-rebuild` directly.
+- `nh os switch` — rebuild and activate the current host, NixOS or
+  `personal-mac`. Do **not** invoke `nixos-rebuild` or `darwin-rebuild`
+  directly.
 - `home-manager switch --flake ~/nix#work-mac` — apply macOS dotfiles after initial activation.
 - `brew bundle --file ~/nix/Brewfile` — install declared macOS packages and applications.
 - `nix flake check` — runs `treefmt` + `pre-commit` checks; mirrors CI.
@@ -87,7 +92,8 @@ modules/
   user.nix           flake.lib.user: personal identity, home, SSH, and flake location
   common/            flake.nixosModules.*: system-wide (locale, nix, ssh, users, base-packages)
   features/          flake.nixosModules.*: optional system features (audio, bluetooth, gaming, gnome, …)
-  hosts/<host>/      NixOS host assembly plus the standalone work-mac output
+  hosts/<host>/      NixOS host assembly, the personal-mac nix-darwin
+                     assembly, and the standalone work-mac output
   home/              flake.homeModules.*: per-user config (zsh, git, firefox, nvim, …);
                      user.nix is the composition point listing every homeModules.* import
   files/             raw config files referenced by home modules
@@ -95,10 +101,16 @@ modules/
 
 On NixOS, Home Manager runs as a system module.
 `modules/features/homeManager.nix` declares `flake.nixosModules.homeManager`;
-each NixOS host wires the appropriate home modules into its user. The
-`work-mac` output instead uses standalone Home Manager and must remain
-dotfiles-only. Its one Nix-managed executable is the Home Manager driver used
-to apply those files.
+each NixOS host wires the appropriate home modules into its user.
+`personal-mac` wires Home Manager the same way, but directly through
+`inputs.home-manager.darwinModules.home-manager` in
+`modules/hosts/personal-mac/default.nix` (nix-darwin has no equivalent of
+`flake.nixosModules.homeManager` to reuse). Modern nix-darwin requires
+`system.primaryUser` and an explicit `users.users.<name>.home` for
+Home Manager's darwin integration to resolve `home.homeDirectory` — both are
+set from `self.lib.user` in that file. The `work-mac` output instead uses
+standalone Home Manager and must remain dotfiles-only. Its one Nix-managed
+executable is the Home Manager driver used to apply those files.
 
 Cross-platform interactive Zsh settings live in
 `modules/files/shared/zsh/common.zsh`. NixOS plugin loading belongs in
@@ -123,9 +135,12 @@ guessed.
 - **System feature** — drop `modules/features/foo.nix` exporting `flake.nixosModules.foo = { ... }: { ... };`, then add `self.nixosModules.foo` to the module list in `modules/hosts/desktop/configuration.nix`.
 - **Home module** — drop `modules/home/foo.nix` exporting `flake.homeModules.foo = { ... }: { ... };`, then add `self.homeModules.foo` to the imports list in `modules/home/user.nix`.
 - **Common (system-wide, always-on)** — drop `modules/common/foo.nix` exporting `flake.nixosModules.foo`; wire it into the host the same way as a feature.
-- **macOS dotfile** — put its source under `modules/files/` and link it from
-  `modules/home/workMac.nix`. Add the corresponding program to `Brewfile`, not
-  `home.packages`.
+- **`personal-mac` home config** — edit `modules/home/personalMac.nix`
+  (`flake.homeModules.personalMac`) directly; packages go in `home.packages`
+  the same as a NixOS home module.
+- **`work-mac` dotfile** — put its source under `modules/files/` and link it
+  from `modules/home/workMac.nix`. Add the corresponding program to
+  `Brewfile`, not `home.packages`.
 
 `import-tree` picks the file up automatically; no `imports = [ … ];` update in `flake.nix`.
 
@@ -142,6 +157,9 @@ guessed.
 - System packages go in `common/` or `features/`. User packages go in `home/dev.nix` or `home/user.nix`.
 - The work-mac Home Manager profile is dotfiles-only. Homebrew owns its shell,
   plugins, CLI tools, runtimes, and applications.
+- `personal-mac` is a full nix-darwin system: Nix owns packages, dev tools,
+  and system defaults; Homebrew is limited to GUI casks not packaged (well)
+  in nixpkgs (`homebrew.casks` in `modules/hosts/personal-mac/default.nix`).
 - Do not add repository helper scripts. Keep activation and maintenance as
   standard `nix`, `home-manager`, and `brew` commands.
 - **Work identity is local-only.** Work Git names, emails, signing keys,
