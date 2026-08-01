@@ -3,7 +3,7 @@
 [![check](https://github.com/tshasan/nix/actions/workflows/check.yml/badge.svg)](https://github.com/tshasan/nix/actions/workflows/check.yml)
 
 Personal configuration for two NixOS hosts and two Apple Silicon Macs.
-The repository uses flake-parts, Home Manager, and a deliberately small
+The repository uses flake-parts, Home Manager, and a small
 platform boundary:
 
 | Target | Packages and applications | Dotfiles |
@@ -30,7 +30,7 @@ defaults, and Homebrew is limited to the casks declared in
   Powerlevel10k settings.
 - Formatting and pre-commit checks exposed through `nix flake check`.
 
-Every Nix file under `modules/` is imported automatically by `import-tree`.
+Every Nix file under `modules/` is imported by `import-tree`.
 Personal account and Git identity, home-directory, and flake location values
 live in `modules/user.nix`.
 
@@ -54,7 +54,7 @@ modules/
   `pre-commit` checks.
 - `update-flake-lock.yml` opens a `flake.lock` update pull request daily and
   auto-merges it once `check` passes.
-- Branch protection on `main` requires the `check` status check — this gates
+- Branch protection on `main` requires the `check` status check. That gates
   the auto-merge above, not direct pushes. Secret-scanning push protection is
   enabled repo-wide. Dependabot watches the Action versions used in both
   workflows.
@@ -75,7 +75,7 @@ nix flake check
 nix flake update
 ```
 
-Home Manager is integrated into each NixOS configuration, so there is no
+Each NixOS configuration integrates Home Manager, so there is no
 separate home activation step.
 
 `desktop` runs `system.autoUpgrade` (`modules/features/autoUpgrade.nix`):
@@ -131,7 +131,7 @@ nh os switch
 ```
 
 `homebrew.onActivation.cleanup = "zap"` means Homebrew removes any cask or
-formula not declared in this config on every switch — keep `Brewfile`-style
+formula not declared in this config on every switch. Keep `Brewfile`-style
 additions here instead of installing ad hoc with `brew install`.
 
 A `launchd` daemon (`nix-darwin-auto-upgrade`, defined inline in
@@ -163,9 +163,9 @@ git clone https://github.com/tshasan/nix.git ~/nix
 brew bundle --file ~/nix/Brewfile
 ```
 
-6. Create the private, machine-wide work Git identity — see
+6. Create the private, machine-wide work Git identity. See
    [Git identities](#git-identities) below.
-7. Build and activate the dotfiles. The explicit feature flag is needed only
+7. Build and activate the dotfiles. You need the explicit feature flag only
    on first activation, before this profile installs `~/.config/nix/nix.conf`:
 
 ```console
@@ -177,7 +177,7 @@ nix --extra-experimental-features 'nix-command flakes' \
 
 Home Manager will not silently replace an existing dotfile. If the first
 activation reports a collision, move that file aside, inspect it, and run the
-activation again. This is the only migration step; the repository intentionally
+activation again. This is the only migration step; the repository
 has no bootstrap or switching scripts. Open a new terminal after activation.
 
 After the first activation, normal updates are one command per owner:
@@ -223,7 +223,7 @@ Identity follows the machine:
 - `work-mac` includes the private local file
   `~/.config/git/work.conf` for every repository.
 
-Create the work profile once on a fresh work Mac. It is intentionally not
+Create the work profile once on a fresh work Mac. It is not
 managed by Nix or committed to this repository. Skip this step if it was
 already created during first setup:
 
@@ -265,18 +265,17 @@ cd ~/firefox
 ```
 
 Use `./mach npm` when Firefox documentation asks for an npm operation. Do not
-add a package to the Brewfile merely because the Firefox source tree uses it.
+add a package to the Brewfile because the Firefox source tree uses it.
 
 ### Mutable and private files
 
-Most managed files are immutable links into the Nix store. Two files are
-deliberately linked back to this checkout because their applications update
-them:
+Most managed files are immutable links into the Nix store. Two files link
+back to this checkout because their applications update them:
 
 - `modules/files/macos/gh/config.yml`
 - `modules/files/shared/nvim/lazy-lock.json`
 
-Those updates appear directly in `git diff`.
+Those updates appear in `git diff`.
 
 Keep the work Git profile, work-specific Zsh fragments, SSH material, tokens, and
 machine-specific secrets outside this repository and outside the Nix store.
@@ -289,4 +288,4 @@ rebuild.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
