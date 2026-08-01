@@ -1,15 +1,17 @@
 # nixos
 
-Personal configuration for NixOS `desktop` and `vm` hosts plus a standalone
-Home Manager `work-mac` profile.
+Personal configuration for two NixOS hosts (`desktop`, `vm`), a full
+nix-darwin Mac (`personal-mac`), and a standalone Home Manager profile for a
+second Mac (`work-mac`).
 
 ## Ownership
 
-- NixOS: NixOS/Home Manager own packages and dotfiles.
-- work-mac: Homebrew owns packages and applications; Home Manager owns
-  dotfiles only. Do not add macOS packages to Home Manager.
-- The Home Manager command itself is the sole Nix-managed program in the
-  work-mac profile.
+- NixOS and `personal-mac`: Nix owns packages, dev tools, system defaults,
+  and dotfiles. `personal-mac` limits Homebrew to GUI casks declared in
+  `modules/hosts/personal-mac/default.nix`.
+- `work-mac`: Homebrew owns packages and applications; Home Manager owns
+  dotfiles only. Do not add macOS packages to Home Manager. The Home Manager
+  command itself is the sole Nix-managed program in this profile.
 - Do not add repository helper scripts. Use standard Nix, Home Manager, and
   Brew commands documented in README.md.
 
@@ -21,7 +23,7 @@ Home Manager `work-mac` profile.
 - `modules/user.nix`: personal identity, home, SSH, and flake-location values.
 - `modules/common/`: shared NixOS modules.
 - `modules/features/`: optional NixOS features.
-- `modules/hosts/`: NixOS and standalone Home Manager outputs.
+- `modules/hosts/`: `desktop`, `vm`, `personal-mac`, and `work-mac` outputs.
 - `modules/home/`: Home Manager modules.
 - `modules/files/`: tracked dotfile sources.
 
@@ -37,15 +39,29 @@ macOS plugins directly.
 
 ## Git identities
 
-NixOS uses the personal Git identity from `flake.lib.user`. The `work-mac`
-profile includes `~/.config/git/work.conf` as its identity for every repository.
-Actual work names, emails, signing keys, domains, and other work identity values
-must never enter Nix or this repository. Keep `user.useConfigOnly=true`.
+NixOS and `personal-mac` use the personal Git identity from `flake.lib.user`.
+The `work-mac` profile includes `~/.config/git/work.conf` as its identity for
+every repository. Actual work names, emails, signing keys, domains, and other
+work identity values must never enter Nix or this repository. Keep
+`user.useConfigOnly=true`.
+
+## Auto-upgrade
+
+`desktop` and `personal-mac` both rebuild and switch to the latest flake
+output unattended once a day (`system.autoUpgrade` on `desktop`, a `launchd`
+daemon on `personal-mac`). `vm` and `work-mac` do not self-update.
+
+## Continuous integration
+
+`check.yml` evaluates all four host outputs and runs `treefmt`/`pre-commit`
+on every push and pull request. `update-flake-lock.yml` opens a daily
+`flake.lock` update PR and auto-merges it once `check` passes. Branch
+protection on `main` requires the `check` status check.
 
 ## Commands
 
-- NixOS activation: `nh os switch`
-- macOS activation: `home-manager switch --flake ~/nix#work-mac`
+- NixOS/`personal-mac` activation: `nh os switch`
+- `work-mac` activation: `home-manager switch --flake ~/nix#work-mac`
 - Validation: `nix flake check`
 - Formatting: `nix fmt`
 
