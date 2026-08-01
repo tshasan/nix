@@ -17,4 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v31
+      - name: Evaluate host configurations
+        run: |
+          nix eval --raw .#nixosConfigurations.desktop.config.system.build.toplevel.drvPath
+          nix eval --raw .#nixosConfigurations.vm.config.system.build.toplevel.drvPath
+          nix eval --raw .#darwinConfigurations.personal-mac.config.system.build.toplevel.drvPath
+          nix eval --raw .#homeConfigurations.work-mac.activationPackage.drvPath
       - run: nix build .#checks.x86_64-linux.treefmt .#checks.x86_64-linux.pre-commit
