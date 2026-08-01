@@ -1,5 +1,7 @@
 # nixos
 
+[![check](https://github.com/tshasan/nix/actions/workflows/check.yml/badge.svg)](https://github.com/tshasan/nix/actions/workflows/check.yml)
+
 Personal configuration for two NixOS hosts and two Apple Silicon Macs.
 The repository uses flake-parts, Home Manager, and a deliberately small
 platform boundary:
@@ -44,6 +46,19 @@ modules/
   files/             source-controlled dotfiles
 ```
 
+## Continuous integration
+
+- `check.yml` runs on every push and pull request: it evaluates all four
+  host outputs (`desktop`, `vm`, `personal-mac`, `work-mac`) so a broken
+  config fails CI without a full build, then runs the `treefmt` and
+  `pre-commit` checks.
+- `update-flake-lock.yml` opens a `flake.lock` update pull request daily and
+  auto-merges it once `check` passes.
+- Branch protection on `main` requires the `check` status check — this gates
+  the auto-merge above, not direct pushes. Secret-scanning push protection is
+  enabled repo-wide. Dependabot watches the Action versions used in both
+  workflows.
+
 ## NixOS
 
 Rebuild the current host:
@@ -62,6 +77,10 @@ nix flake update
 
 Home Manager is integrated into each NixOS configuration, so there is no
 separate home activation step.
+
+`desktop` runs `system.autoUpgrade` (`modules/features/autoUpgrade.nix`):
+once a day it rebuilds and switches to the latest flake output unattended,
+without rebooting. `vm` does not have this enabled.
 
 ## macOS (personal-mac, nix-darwin)
 
@@ -115,6 +134,11 @@ nh os switch
 formula not declared in this config on every switch — keep `Brewfile`-style
 additions here instead of installing ad hoc with `brew install`.
 
+A `launchd` daemon (`nix-darwin-auto-upgrade`, defined inline in
+`modules/hosts/personal-mac/default.nix`) rebuilds and switches to the latest
+flake output unattended every day at 3am. Logs go to
+`/var/log/nix-darwin-auto-upgrade.log`.
+
 ## macOS (work-mac, dotfiles only)
 
 The `work-mac` output supports Apple Silicon and expects this repository at
@@ -139,20 +163,8 @@ git clone https://github.com/tshasan/nix.git ~/nix
 brew bundle --file ~/nix/Brewfile
 ```
 
-6. Create the private, machine-wide work Git identity:
-
-```console
-mkdir -p ~/.config/git
-nvim ~/.config/git/work.conf
-chmod 600 ~/.config/git/work.conf
-```
-
-```gitconfig
-[user]
-    name = Your Name
-    email = work@example.invalid
-```
-
+6. Create the private, machine-wide work Git identity — see
+   [Git identities](#git-identities) below.
 7. Build and activate the dotfiles. The explicit feature flag is needed only
    on first activation, before this profile installs `~/.config/nix/nix.conf`:
 
