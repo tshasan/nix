@@ -11,6 +11,20 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        input:
+          - nixpkgs
+          - flake-parts
+          - import-tree
+          - home-manager
+          - nix-darwin
+          - chaotic
+          - firefox-addons
+          - treefmt-nix
+          - git-hooks-nix
     steps:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
@@ -18,11 +32,13 @@ jobs:
         id: update
         with:
           token: ${{ secrets.FLAKE_LOCK_TOKEN }}
-          pr-title: "chore(flake): update flake.lock"
+          inputs: ${{ matrix.input }}
+          branch: update-flake-lock/${{ matrix.input }}
+          pr-title: "chore(flake): update ${{ matrix.input }}"
           pr-labels: |
             automerge
             dependencies
-          commit-msg: "chore(flake): update flake.lock"
+          commit-msg: "chore(flake): update ${{ matrix.input }}"
       - if: steps.update.outputs.pull-request-number
         env:
           GH_TOKEN: ${{ secrets.FLAKE_LOCK_TOKEN }}
