@@ -32,6 +32,8 @@
             };
             credential.helper = "osxkeychain";
             color.ui = "auto";
+            protocol.version = "2";
+            maintenance.repo = "${config.home.homeDirectory}/firefox";
             "filter \"lfs\"" = {
               clean = "git-lfs clean -- %f";
               smudge = "git-lfs smudge -- %f";
@@ -59,24 +61,74 @@
 
       programs.home-manager.enable = true;
 
-      launchd.agents.home-manager-auto-upgrade = {
-        enable = true;
-        config = {
-          ProgramArguments = [
-            "${config.programs.home-manager.package}/bin/home-manager"
-            "switch"
-            "--flake"
-            "${self.lib.user.flakeUrl}#work-mac"
-            "--refresh"
-            "-b"
-            "hm-backup"
-          ];
-          RunAtLoad = true;
-          ProcessType = "Background";
-          LowPriorityIO = true;
-          EnvironmentVariables.PATH = "/nix/var/nix/profiles/default/bin:/usr/bin:/bin:/usr/sbin:/sbin";
-          StandardOutPath = "${config.home.homeDirectory}/Library/Logs/home-manager-auto-upgrade.log";
-          StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/home-manager-auto-upgrade.log";
+      launchd.agents = {
+        git-maintenance-hourly = {
+          enable = true;
+          config = {
+            ProgramArguments = [
+              "${pkgs.gitFull}/bin/git"
+              "for-each-repo"
+              "--config=maintenance.repo"
+              "maintenance"
+              "run"
+              "--schedule=hourly"
+            ];
+            StartCalendarInterval = map (minute: { Minute = minute; }) [
+              0
+              15
+              30
+              45
+            ];
+            ProcessType = "Background";
+            LowPriorityIO = true;
+            StandardOutPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
+            StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
+          };
+        };
+
+        git-maintenance-daily = {
+          enable = true;
+          config = {
+            ProgramArguments = [
+              "${pkgs.gitFull}/bin/git"
+              "for-each-repo"
+              "--config=maintenance.repo"
+              "maintenance"
+              "run"
+              "--schedule=daily"
+            ];
+            StartCalendarInterval = [
+              {
+                Hour = 3;
+                Minute = 0;
+              }
+            ];
+            ProcessType = "Background";
+            LowPriorityIO = true;
+            StandardOutPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
+            StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
+          };
+        };
+
+        home-manager-auto-upgrade = {
+          enable = true;
+          config = {
+            ProgramArguments = [
+              "${config.programs.home-manager.package}/bin/home-manager"
+              "switch"
+              "--flake"
+              "${self.lib.user.flakeUrl}#work-mac"
+              "--refresh"
+              "-b"
+              "hm-backup"
+            ];
+            RunAtLoad = true;
+            ProcessType = "Background";
+            LowPriorityIO = true;
+            EnvironmentVariables.PATH = "/nix/var/nix/profiles/default/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+            StandardOutPath = "${config.home.homeDirectory}/Library/Logs/home-manager-auto-upgrade.log";
+            StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/home-manager-auto-upgrade.log";
+          };
         };
       };
 
