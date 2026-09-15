@@ -91,14 +91,9 @@
           launchd.daemons.nix-darwin-auto-upgrade = {
             serviceConfig = {
               ProgramArguments = [
-                "${pkgs.nh}/bin/nh"
-                "darwin"
-                "switch"
-                "${self.lib.user.flakeUrl}#personal-mac"
-                "--refresh"
-                "--elevation-strategy"
-                "/usr/bin/sudo"
-                "--bypass-root-check"
+                "/bin/sh"
+                "-c"
+                "/bin/wait4path ${pkgs.nh}/bin/nh && exec ${pkgs.nh}/bin/nh darwin switch ${self.lib.user.flakeUrl}#personal-mac --refresh --elevation-strategy /usr/bin/sudo --bypass-root-check"
               ];
               RunAtLoad = true;
               StartCalendarInterval = [
