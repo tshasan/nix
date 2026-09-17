@@ -72,10 +72,37 @@ user_pref("browser.ml.logLevel", "All");
 user_pref("browser.smartwindow.log", "All");
 user_pref("devtools.chrome.enabled", true);
 user_pref("devtools.console.stdout.chrome", true);
+
+// Latency work. The first three already default to true in firefox.js; they are
+// repeated here so a stale objdir cannot silently test the old behavior. The last
+// two ship off pending review, so only a manual session exercises them.
+user_pref("browser.smartwindow.prewarmEngines.enabled", true);
+user_pref("browser.smartwindow.speculativeConnect.chatEndpoint.enabled", true);
+user_pref("browser.smartwindow.coalesceStreamUpdates.enabled", true);
+user_pref("browser.smartwindow.speculativeConnect.enabled", true);
+user_pref("browser.smartwindow.parallelToolCalls.enabled", true);
+
+// Memory retrieval has to be reachable for the retrieval prewarm to do anything.
+user_pref("browser.smartwindow.memories.generateFromConversation", true);
+user_pref("browser.smartwindow.memories.generateFromHistory", true);
+
+// Makes nsHttpHandler publish the connection hash key of every speculative
+// connection, so a warm can be confirmed as keyed like the request it is for.
+user_pref("network.http.debug-observations", true);
 EOF
 
   mach run --profile "$profile" "$@"
 }
+
+# The firefox-devtools MCP server in the tree's .mcp.json launches mach with
+# ${MACH_PYTHON:-python3}, so it needs the same pin as the function above.
+export MACH_PYTHON=python3.12
+
+# The Claude Code github plugin authenticates its MCP server with this variable
+# and fails to connect when it is unset. gh keeps the token in the keychain.
+if (( $+commands[gh] )); then
+  export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token 2>/dev/null)"
+fi
 
 alias mb="mach build"
 alias mbf="mach build faster"
