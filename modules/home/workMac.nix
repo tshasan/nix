@@ -33,7 +33,10 @@
             credential.helper = "osxkeychain";
             color.ui = "auto";
             protocol.version = "2";
-            maintenance.repo = "${config.home.homeDirectory}/firefox";
+            maintenance = {
+              repo = "${config.home.homeDirectory}/firefox";
+              prefetch.enabled = false;
+            };
             "filter \"lfs\"" = {
               clean = "git-lfs clean -- %f";
               smudge = "git-lfs smudge -- %f";

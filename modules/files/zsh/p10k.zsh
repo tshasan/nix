@@ -124,6 +124,9 @@
   # asynchronously when Git state changes.
   typeset -g POWERLEVEL9K_VCS_MAX_SYNC_LATENCY_SECONDS=0
 
+  # Skip the dirty scan in huge repos like Firefox; gitstatusd ignores fsmonitor.
+  typeset -g POWERLEVEL9K_VCS_MAX_INDEX_SIZE_DIRTY=100000
+
   # Cyan ahead/behind arrows.
   typeset -g POWERLEVEL9K_VCS_{INCOMING,OUTGOING}_CHANGESFORMAT_FOREGROUND=$cyan
   # Don't show remote branch, current tag or stashes.
