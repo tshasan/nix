@@ -8,6 +8,7 @@ on:
 jobs:
   lockfile:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
       pull-requests: write
@@ -42,4 +43,24 @@ jobs:
       - if: steps.update.outputs.pull-request-number
         env:
           GH_TOKEN: ${{ secrets.FLAKE_LOCK_TOKEN }}
-        run: gh pr merge --auto --squash "${{ steps.update.outputs.pull-request-number }}"
+          PR_NUMBER: ${{ steps.update.outputs.pull-request-number }}
+        run: |
+          gh pr merge --auto --squash "$PR_NUMBER"
+          gh pr checks --watch --fail-fast --interval 15 "$PR_NUMBER"
+
+          for _ in {1..60}; do
+            state=$(gh pr view "$PR_NUMBER" --json state --jq .state)
+            case "$state" in
+              MERGED)
+                exit 0
+                ;;
+              CLOSED)
+                echo "PR #$PR_NUMBER closed without merging" >&2
+                exit 1
+                ;;
+            esac
+            sleep 10
+          done
+
+          echo "Timed out waiting for PR #$PR_NUMBER to merge" >&2
+          exit 1

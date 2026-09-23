@@ -52,8 +52,9 @@ modules/
   host outputs (`desktop`, `vm`, `personal-mac`, `work-mac`) so a broken
   config fails CI without a full build, then runs the `treefmt` and
   `pre-commit` checks.
-- `update-flake-lock.yml` opens a `flake.lock` update pull request daily and
-  auto-merges it once `check` passes.
+- `update-flake-lock.yml` processes flake inputs one at a time. For each changed
+  input it opens or refreshes a pull request, waits for `check` and the merge to
+  finish, then starts the next input from the updated `main` branch.
 - Branch protection on `main` requires the `check` status check. That gates
   the auto-merge above, not direct pushes. Secret-scanning push protection is
   enabled repo-wide. Dependabot watches the Action versions used in both

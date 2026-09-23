@@ -7,9 +7,6 @@ on:
       - "**.md"
       - "LICENSE"
   pull_request:
-    paths-ignore:
-      - "**.md"
-      - "LICENSE"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
