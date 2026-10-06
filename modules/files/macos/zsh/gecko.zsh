@@ -34,15 +34,50 @@ mach() {
   fi
 }
 
-# Runs the local build against a clone of the daily Nightly profile, so the FxA
-# session Smart Window needs is already signed in. The source profile is looked
-# up by name in profiles.ini rather than by its random directory id, and the
-# clone is made on first use — delete it to resync with Nightly. mach rejects
-# --setpref whenever --profile is given, so the prefs go through user.js, which
-# is rewritten on every launch to stay in sync with this file.
+# Launches the local build against the profile directory in $1 with the dev
+# prefs applied. mach rejects --setpref whenever --profile is given, so the prefs
+# go through user.js, which is rewritten on every launch to stay in sync with
+# this file. Removing a line from it does not reset the pref, since Firefox
+# already copied the value into prefs.js; set it explicitly or use --fresh.
+_mach_run_dev_profile() {
+  local profile=$1
+  shift
+
+  cat >"$profile/user.js" <<'EOF'
+user_pref("browser.aboutConfig.showWarning", false);
+user_pref("browser.shell.checkDefaultBrowser", false);
+user_pref("browser.smartwindow.enabled", true);
+user_pref("browser.ai.control.smartWindow", "enabled");
+user_pref("browser.ml.logLevel", "All");
+user_pref("browser.smartwindow.log", "All");
+user_pref("devtools.chrome.enabled", true);
+user_pref("devtools.console.stdout.chrome", true);
+
+// default-nightly pins this to 0, which disables speculative connections.
+user_pref("network.http.speculative-parallel-limit", 6);
+EOF
+
+  # A profile outside profiles.ini keeps its startup cache in the profile dir,
+  # where it can outlive .sys.mjs edits and keep running stale bytecode.
+  rm -rf "$profile/startupCache"
+
+  # Builds from different worktrees share these profiles, so an older one would
+  # otherwise trip the profile downgrade prompt.
+  mach run --profile "$profile" -allow-downgrade "$@"
+}
+
+# Runs the local build against a clone of the daily Nightly profile, with its
+# FxA session, history and tabs. The source profile is looked up by name in
+# profiles.ini rather than by its random directory id, and the clone is made on
+# first use; pass --fresh to resync it with Nightly.
 mrai() {
   local support="$HOME/Library/Application Support/Firefox"
   local profile=${MRAI_PROFILE:-${MOZBUILD_STATE_PATH:-$HOME/.mozbuild}/dev-profiles/smartwindow}
+
+  if [[ $1 == --fresh ]]; then
+    shift
+    rm -rf "$profile"
+  fi
 
   if [[ ! -d $profile ]]; then
     local name=${MRAI_SOURCE_PROFILE:-default-nightly}
@@ -65,33 +100,22 @@ mrai() {
     rm -f "$profile/lock" "$profile/.parentlock" "$profile/compatibility.ini"
   fi
 
-  cat >"$profile/user.js" <<'EOF'
-user_pref("browser.smartwindow.enabled", true);
-user_pref("browser.ai.control.smartWindow", "enabled");
-user_pref("browser.ml.logLevel", "All");
-user_pref("browser.smartwindow.log", "All");
-user_pref("devtools.chrome.enabled", true);
-user_pref("devtools.console.stdout.chrome", true);
+  _mach_run_dev_profile "$profile" "$@"
+}
 
-// Latency work. The first three already default to true in firefox.js; they are
-// repeated here so a stale objdir cannot silently test the old behavior. The last
-// two ship off pending review, so only a manual session exercises them.
-user_pref("browser.smartwindow.prewarmEngines.enabled", true);
-user_pref("browser.smartwindow.speculativeConnect.chatEndpoint.enabled", true);
-user_pref("browser.smartwindow.coalesceStreamUpdates.enabled", true);
-user_pref("browser.smartwindow.speculativeConnect.enabled", true);
-user_pref("browser.smartwindow.parallelToolCalls.enabled", true);
+# Runs the local build against an empty profile that persists between runs, so
+# signing in to FxA once keeps it signed in with nothing else carried over from
+# Nightly. Pass --fresh to wipe it, which also signs it out.
+mrp() {
+  local profile=${MRP_PROFILE:-${MOZBUILD_STATE_PATH:-$HOME/.mozbuild}/dev-profiles/plain}
 
-// Memory retrieval has to be reachable for the retrieval prewarm to do anything.
-user_pref("browser.smartwindow.memories.generateFromConversation", true);
-user_pref("browser.smartwindow.memories.generateFromHistory", true);
+  if [[ $1 == --fresh ]]; then
+    shift
+    rm -rf "$profile"
+  fi
 
-// Makes nsHttpHandler publish the connection hash key of every speculative
-// connection, so a warm can be confirmed as keyed like the request it is for.
-user_pref("network.http.debug-observations", true);
-EOF
-
-  mach run --profile "$profile" "$@"
+  mkdir -p "$profile"
+  _mach_run_dev_profile "$profile" "$@"
 }
 
 # The firefox-devtools MCP server in the tree's .mcp.json launches mach with
