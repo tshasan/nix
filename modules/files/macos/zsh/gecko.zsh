@@ -34,14 +34,59 @@ mach() {
   fi
 }
 
-# Launches the local build against the profile directory in $1 with the dev
-# prefs applied. mach rejects --setpref whenever --profile is given, so the prefs
-# go through user.js, which is rewritten on every launch to stay in sync with
-# this file. Removing a line from it does not reset the pref, since Firefox
-# already copied the value into prefs.js; set it explicitly or use --fresh.
-_mach_run_dev_profile() {
-  local profile=$1
-  shift
+# One command for running the local build:
+#
+#   mr                  empty profile, sign in to FxA once and it stays signed in
+#   mr nightly          copy of the daily Nightly profile, with its FxA, history and tabs
+#   mr reset            wipe the empty profile first
+#   mr nightly reset    re-copy from Nightly first
+#
+# Anything after that goes to mach run, e.g. `mr nightly --jsdebugger`.
+#
+# The Nightly profile is looked up by name in profiles.ini rather than by its
+# random directory id. mach rejects --setpref whenever --profile is given, so the
+# prefs go through user.js, which is rewritten on every launch to stay in sync
+# with this file. Removing a line from it does not reset the pref, since Firefox
+# already copied the value into prefs.js; set it explicitly or reset the profile.
+mr() {
+  local profiles=${MOZBUILD_STATE_PATH:-$HOME/.mozbuild}/dev-profiles
+  local profile=$profiles/plain label="empty profile" nightly=0
+
+  if [[ $1 == nightly ]]; then
+    shift
+    nightly=1
+    profile=$profiles/smartwindow
+    label="Nightly copy"
+  fi
+
+  if [[ $1 == reset ]]; then
+    shift
+    rm -rf "$profile"
+  fi
+
+  if (( nightly )) && [[ ! -d $profile ]]; then
+    local support="$HOME/Library/Application Support/Firefox"
+    local src=$(awk -F= '
+      /^\[/ { found = 0 }
+      $1 == "Name" && $2 == "default-nightly" { found = 1 }
+      found && $1 == "Path" { print $2; exit }
+    ' "$support/profiles.ini")
+
+    [[ $src == /* ]] || src=$support/$src
+
+    if [[ ! -d $src ]]; then
+      print -u2 "mr: no 'default-nightly' profile found in $support/profiles.ini"
+      return 1
+    fi
+
+    print "mr: copying Nightly's profile, this only happens on first use or reset"
+    mkdir -p "$profiles"
+    cp -Rc "$src" "$profile" || return 1
+    rm -f "$profile/lock" "$profile/.parentlock" "$profile/compatibility.ini"
+  fi
+
+  mkdir -p "$profile"
+  print "mr: $label    (options: mr, mr nightly, add 'reset' to start over)"
 
   cat >"$profile/user.js" <<'EOF'
 user_pref("browser.aboutConfig.showWarning", false);
@@ -66,57 +111,7 @@ EOF
   mach run --profile "$profile" -allow-downgrade "$@"
 }
 
-# Runs the local build against a clone of the daily Nightly profile, with its
-# FxA session, history and tabs. The source profile is looked up by name in
-# profiles.ini rather than by its random directory id, and the clone is made on
-# first use; pass --fresh to resync it with Nightly.
-mrai() {
-  local support="$HOME/Library/Application Support/Firefox"
-  local profile=${MRAI_PROFILE:-${MOZBUILD_STATE_PATH:-$HOME/.mozbuild}/dev-profiles/smartwindow}
-
-  if [[ $1 == --fresh ]]; then
-    shift
-    rm -rf "$profile"
-  fi
-
-  if [[ ! -d $profile ]]; then
-    local name=${MRAI_SOURCE_PROFILE:-default-nightly}
-    local src=$(awk -F= -v name="$name" '
-      /^\[/ { found = 0 }
-      $1 == "Name" && $2 == name { found = 1 }
-      found && $1 == "Path" { print $2; exit }
-    ' "$support/profiles.ini")
-
-    [[ $src == /* ]] || src=$support/$src
-
-    if [[ ! -d $src ]]; then
-      print -u2 "mrai: no '$name' profile found in $support/profiles.ini"
-      return 1
-    fi
-
-    print "mrai: cloning $src -> $profile"
-    mkdir -p "${profile:h}"
-    cp -Rc "$src" "$profile" || return 1
-    rm -f "$profile/lock" "$profile/.parentlock" "$profile/compatibility.ini"
-  fi
-
-  _mach_run_dev_profile "$profile" "$@"
-}
-
-# Runs the local build against an empty profile that persists between runs, so
-# signing in to FxA once keeps it signed in with nothing else carried over from
-# Nightly. Pass --fresh to wipe it, which also signs it out.
-mrp() {
-  local profile=${MRP_PROFILE:-${MOZBUILD_STATE_PATH:-$HOME/.mozbuild}/dev-profiles/plain}
-
-  if [[ $1 == --fresh ]]; then
-    shift
-    rm -rf "$profile"
-  fi
-
-  mkdir -p "$profile"
-  _mach_run_dev_profile "$profile" "$@"
-}
+alias mrai="mr nightly"
 
 # The firefox-devtools MCP server in the tree's .mcp.json launches mach with
 # ${MACH_PYTHON:-python3}, so it needs the same pin as the function above.
@@ -132,7 +127,6 @@ alias mb="mach build"
 alias mbf="mach build faster"
 alias mc="mach clobber"
 alias ml="mach lint -wo --fix"
-alias mr="mach run"
 alias mt="mach test"
 alias mth="mach test --headless"
 
