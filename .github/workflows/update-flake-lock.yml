@@ -28,6 +28,8 @@ jobs:
           - git-hooks-nix
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: main
       - uses: cachix/install-nix-action@v31
       - uses: DeterminateSystems/update-flake-lock@da03c0f078bc4b2c37ee4f7e072d34bf8f188bb3 # v29
         id: update
@@ -46,6 +48,13 @@ jobs:
           PR_NUMBER: ${{ steps.update.outputs.pull-request-number }}
         run: |
           gh pr merge --auto --squash "$PR_NUMBER"
+
+          for _ in {1..30}; do
+            checks=$(gh pr view "$PR_NUMBER" --json statusCheckRollup --jq '.statusCheckRollup | length')
+            [ "$checks" -gt 0 ] && break
+            sleep 10
+          done
+
           gh pr checks --watch --fail-fast --interval 15 "$PR_NUMBER"
 
           for _ in {1..60}; do
