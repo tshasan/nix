@@ -61,7 +61,14 @@ mr() {
 
   if [[ $1 == reset ]]; then
     shift
-    rm -rf "$profile"
+    if [[ -d $profile ]]; then
+      read -q "?mr: wipe the $label at $profile? Your real Nightly profile is not touched. [y/N] " || {
+        print
+        return 1
+      }
+      print
+      rm -rf "$profile"
+    fi
   fi
 
   if (( nightly )) && [[ ! -d $profile ]]; then
