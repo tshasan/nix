@@ -54,9 +54,13 @@
           VISUAL = "nvim";
           RUSTUP_HOME = "${config.home.homeDirectory}/.rustup";
           CARGO_HOME = "${config.home.homeDirectory}/.cargo";
+          NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
         };
 
-        sessionPath = [ "${config.home.homeDirectory}/.cargo/bin" ];
+        sessionPath = [
+          "${config.home.homeDirectory}/.cargo/bin"
+          "${config.home.homeDirectory}/.npm-global/bin"
+        ];
       };
 
       programs = {
