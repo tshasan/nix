@@ -84,7 +84,7 @@
               autoUpdate = true;
               upgrade = true;
             };
-            casks = [ ];
+            casks = [ "blackhole-2ch" ];
           };
 
           launchd.daemons.nix-darwin-auto-upgrade = {
