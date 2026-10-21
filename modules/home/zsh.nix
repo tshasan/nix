@@ -14,7 +14,7 @@ _: {
         enable = true;
         dotDir = config.home.homeDirectory;
 
-        autosuggestion.enable = true;
+        autosuggestion.enable = false;
         syntaxHighlighting.enable = true;
         historySubstringSearch.enable = true;
 
