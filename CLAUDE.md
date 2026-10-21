@@ -22,9 +22,9 @@ switching, migration, or parity scripts.
 
 ## Commands
 
-- `nh os switch` — rebuild and activate the current host, NixOS or
-  `personal-mac`. Do **not** invoke `nixos-rebuild` or `darwin-rebuild`
-  directly.
+- `nh os switch` — rebuild and activate the current NixOS host;
+  `nh darwin switch` on `personal-mac`. Do **not** invoke `nixos-rebuild` or
+  `darwin-rebuild` directly.
 - `home-manager switch --flake ~/nix#work-mac` — apply macOS dotfiles after initial activation.
 - `brew bundle --file ~/nix/Brewfile` — install declared macOS packages and applications.
 - `nix flake check` — runs `treefmt` + `pre-commit` checks; mirrors CI.

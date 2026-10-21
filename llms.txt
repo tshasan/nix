@@ -60,7 +60,8 @@ protection on `main` requires the `check` status check.
 
 ## Commands
 
-- NixOS/`personal-mac` activation: `nh os switch`
+- NixOS activation: `nh os switch`
+- `personal-mac` activation: `nh darwin switch`
 - `work-mac` activation: `home-manager switch --flake ~/nix#work-mac`
 - Validation: `nix flake check`
 - Formatting: `nix fmt`

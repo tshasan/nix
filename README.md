@@ -124,11 +124,10 @@ sudo nix --extra-experimental-features 'nix-command flakes' \
 6. Open a new terminal so the nix-darwin/Home Manager PATH changes take
    effect.
 
-After the first activation, rebuild with the same command used on the NixOS
-hosts:
+After the first activation, rebuild with:
 
 ```console
-nh os switch
+nh darwin switch
 ```
 
 `homebrew.onActivation.cleanup = "zap"` means Homebrew removes any cask or
