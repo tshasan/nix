@@ -44,7 +44,6 @@ brew "uv"
 brew "watchman"
 brew "yasm"
 brew "zoxide"
-brew "zsh-autosuggestions"
 brew "zsh-history-substring-search"
 brew "zsh-syntax-highlighting"
 

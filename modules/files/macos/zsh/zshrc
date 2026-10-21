@@ -6,8 +6,6 @@ brew_share="${HOMEBREW_PREFIX:-/opt/homebrew}/share"
 
 [[ -r "$brew_share/powerlevel10k/powerlevel10k.zsh-theme" ]] &&
   source "$brew_share/powerlevel10k/powerlevel10k.zsh-theme"
-[[ -r "$brew_share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] &&
-  source "$brew_share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 [[ -r "$brew_share/zsh-history-substring-search/zsh-history-substring-search.zsh" ]] &&
   source "$brew_share/zsh-history-substring-search/zsh-history-substring-search.zsh"
 
