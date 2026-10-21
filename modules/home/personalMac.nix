@@ -29,7 +29,9 @@
           ripgrep
           tree-sitter
           claude-code
+          codex
           gh
+          jujutsu
           jq
           lazygit
           eza
