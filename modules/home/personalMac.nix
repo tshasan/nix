@@ -121,6 +121,11 @@
         };
       };
 
+      targets.darwin = {
+        copyApps.enable = false;
+        linkApps.enable = true;
+      };
+
       manual.manpages.enable = false;
       programs.man.enable = false;
 
