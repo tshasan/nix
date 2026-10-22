@@ -14,6 +14,8 @@ source "$HOME/.config/zsh/common.zsh"
 
 alias view="nvim -R"
 
+(( $+commands[fzf] )) && source <(fzf --zsh)
+
 [[ -r "$brew_share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] &&
   source "$brew_share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
