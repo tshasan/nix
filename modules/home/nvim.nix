@@ -15,17 +15,8 @@ _: {
         pkgs.wl-clipboard
       ];
 
-      xdg.configFile = {
-        "nvim/.neoconf.json".source = ../files/shared/nvim/.neoconf.json;
-        "nvim/init.lua".source = ../files/shared/nvim/init.lua;
-        "nvim/lazy-lock.json".source =
-          config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/modules/files/shared/nvim/lazy-lock.json";
-        "nvim/lazyvim.json".source = ../files/shared/nvim/lazyvim.json;
-        "nvim/stylua.toml".source = ../files/shared/nvim/stylua.toml;
-        "nvim/lua" = {
-          source = ../files/shared/nvim/lua;
-          recursive = true;
-        };
-      };
+      # Linked to the checkout rather than copied into the store, so edits apply
+      # without a switch and :LazyExtras / :Lazy update can write their files.
+      xdg.configFile.nvim.source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/modules/files/shared/nvim";
     };
 }
