@@ -1,3 +1,7 @@
-if [[ -n "${HOMEBREW_PREFIX:-}" && -x "$HOMEBREW_PREFIX/bin/brew" ]]; then
-  eval "$("$HOMEBREW_PREFIX/bin/brew" shellenv)"
+# /etc/zprofile runs path_helper after .zshenv, which moves the system
+# directories back in front of Homebrew. Restore the .zshenv order without
+# paying for a `brew shellenv` subprocess on every login shell.
+if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
+  path=("$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin" $path)
+  [[ -d "$HOMEBREW_PREFIX/opt/rustup/bin" ]] && path=("$HOMEBREW_PREFIX/opt/rustup/bin" $path)
 fi
