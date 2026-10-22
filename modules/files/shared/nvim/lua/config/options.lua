@@ -9,3 +9,17 @@ vim.g.loaded_python3_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
+
+-- Firefox build and test files that Neovim doesn't recognize on its own
+vim.filetype.add({
+  filename = {
+    ["moz.build"] = "python",
+    ["moz.configure"] = "python",
+    ["jar.mn"] = "conf",
+  },
+  extension = {
+    mozbuild = "python",
+    sjs = "javascript",
+    webidl = "idl",
+  },
+})
