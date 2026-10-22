@@ -23,3 +23,7 @@ vim.filetype.add({
     webidl = "idl",
   },
 })
+
+-- Only run prettier where the project configures it, so repos that don't use
+-- it keep their existing formatting
+vim.g.lazyvim_prettier_needs_config = true
