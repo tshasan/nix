@@ -135,6 +135,11 @@
         };
       };
 
+      nix.gc = {
+        automatic = true;
+        options = "--delete-older-than 7d";
+      };
+
       manual.manpages.enable = false;
       programs.man.enable = false;
 
