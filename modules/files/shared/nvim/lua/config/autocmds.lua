@@ -11,3 +11,13 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.b.autoformat = false
   end,
 })
+
+-- moz.build and moz.configure run in mach's sandbox, which injects globals like
+-- DIRS and Files that pyright reports as undefined on nearly every line.
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  group = vim.api.nvim_create_augroup("mozbuild_diagnostics", { clear = true }),
+  pattern = { "moz.build", "moz.configure", "*.mozbuild" },
+  callback = function(args)
+    vim.diagnostic.enable(false, { bufnr = args.buf })
+  end,
+})
