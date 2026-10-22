@@ -37,6 +37,15 @@ alias vim="nvim"
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
 (( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
 
+# zsh only picks vi mode implicitly from EDITOR, so say it outright. The short
+# KEYTIMEOUT drops the 0.4s pause after Esc, and the viins bindings let
+# Backspace and ^W delete past the point where insert mode was entered.
+bindkey -v
+KEYTIMEOUT=1
+bindkey -M viins '^?' backward-delete-char
+bindkey -M viins '^H' backward-delete-char
+bindkey -M viins '^W' backward-kill-word
+
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 bindkey -M vicmd 'k' history-substring-search-up
