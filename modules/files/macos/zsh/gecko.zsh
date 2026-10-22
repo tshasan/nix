@@ -126,9 +126,11 @@ export MACH_PYTHON=python3.12
 
 # The Claude Code github plugin authenticates its MCP server with this variable
 # and fails to connect when it is unset. gh keeps the token in the keychain.
-if (( $+commands[gh] )); then
-  export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token 2>/dev/null)"
-fi
+# Reading it costs a keychain round trip, so only pay that when claude starts,
+# and keep the token out of every other process's environment.
+claude() {
+  GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token 2>/dev/null)" command claude "$@"
+}
 
 alias mb="mach build"
 alias mbf="mach build faster"
