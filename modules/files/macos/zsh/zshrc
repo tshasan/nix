@@ -7,8 +7,18 @@ brew_share="${HOMEBREW_PREFIX:-/opt/homebrew}/share"
 [[ -r "$brew_share/powerlevel10k/powerlevel10k.zsh-theme" ]] &&
   source "$brew_share/powerlevel10k/powerlevel10k.zsh-theme"
 
+# Run the full compinit security audit at most once a day; otherwise trust the
+# existing dump. New completions from brew upgrades show up the next day.
 autoload -Uz compinit
-compinit -d "${ZDOTDIR:-$HOME}/.zcompdump"
+zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+stale_zcompdump=("$zcompdump"(N.mh+24))
+if [[ -f $zcompdump && -z $stale_zcompdump ]]; then
+  compinit -C -d "$zcompdump"
+else
+  compinit -d "$zcompdump"
+  touch "$zcompdump"
+fi
+unset zcompdump stale_zcompdump
 
 source "$HOME/.config/zsh/common.zsh"
 
