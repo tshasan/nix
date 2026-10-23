@@ -7,111 +7,71 @@
       pkgs,
       ...
     }:
-    {
-      imports = [
-        self.homeModules.kitty
-        self.homeModules.nvim
-      ];
-
-      home = {
-        username = self.lib.user.darwinUsername;
-        homeDirectory = self.lib.user.darwinHomeDirectory;
-        stateVersion = "25.11";
-
-        sessionVariables = {
-          EDITOR = "nvim";
-          VISUAL = "nvim";
-        };
-
-        file = {
-          ".gitconfig".text = lib.generators.toGitINI {
-            user.useConfigOnly = true;
-            core = {
-              editor = "nvim";
-              untrackedCache = true;
-            };
-            credential.helper = "osxkeychain";
-            color.ui = "auto";
-            protocol.version = "2";
-            maintenance = {
-              repo = "${config.home.homeDirectory}/firefox";
-              prefetch.enabled = false;
-            };
-            "filter \"lfs\"" = {
-              clean = "git-lfs clean -- %f";
-              smudge = "git-lfs smudge -- %f";
-              process = "git-lfs filter-process";
-              required = true;
-            };
-            include.path = "~/.config/git/work.conf";
-            rebase.updateRefs = true;
-            "credential \"https://github.com\"".helper = [
-              ""
-              "!gh auth git-credential"
-            ];
-            "credential \"https://gist.github.com\"".helper = [
-              ""
-              "!gh auth git-credential"
-            ];
-          };
-          ".p10k.zsh".source = ../files/zsh/p10k.zsh;
-          ".profile".source = ../files/macos/zsh/profile;
-          ".zprofile".source = ../files/macos/zsh/zprofile;
-          ".zshenv".source = ../files/macos/zsh/zshenv;
-          ".zshrc".source = ../files/macos/zsh/zshrc;
+    let
+      gitMaintenance = schedule: StartCalendarInterval: {
+        enable = true;
+        config = {
+          ProgramArguments = [
+            "${pkgs.gitFull}/bin/git"
+            "for-each-repo"
+            "--config=maintenance.repo"
+            "maintenance"
+            "run"
+            "--schedule=${schedule}"
+          ];
+          inherit StartCalendarInterval;
+          ProcessType = "Background";
+          LowPriorityIO = true;
+          StandardOutPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
+          StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
         };
       };
+    in
+    {
+      imports = [ self.homeModules.darwinBase ];
 
-      programs.home-manager.enable = true;
+      # programs.git stays disabled: Homebrew owns git here, so the shared
+      # settings are rendered into ~/.gitconfig directly.
+      programs.git.settings = {
+        protocol.version = "2";
+        maintenance = {
+          repo = "${config.home.homeDirectory}/firefox";
+          prefetch.enabled = false;
+        };
+        "filter \"lfs\"" = {
+          clean = "git-lfs clean -- %f";
+          smudge = "git-lfs smudge -- %f";
+          process = "git-lfs filter-process";
+          required = true;
+        };
+        include.path = "~/.config/git/work.conf";
+      };
+
+      home.file = {
+        ".gitconfig".text = lib.generators.toGitINI config.programs.git.settings;
+        ".p10k.zsh".source = ../files/zsh/p10k.zsh;
+        ".profile".source = ../files/macos/zsh/profile;
+        ".zprofile".source = ../files/macos/zsh/zprofile;
+        ".zshenv".source = ../files/macos/zsh/zshenv;
+        ".zshrc".source = ../files/macos/zsh/zshrc;
+      };
 
       launchd.agents = {
-        git-maintenance-hourly = {
-          enable = true;
-          config = {
-            ProgramArguments = [
-              "${pkgs.gitFull}/bin/git"
-              "for-each-repo"
-              "--config=maintenance.repo"
-              "maintenance"
-              "run"
-              "--schedule=hourly"
-            ];
-            StartCalendarInterval = map (minute: { Minute = minute; }) [
-              0
-              15
-              30
-              45
-            ];
-            ProcessType = "Background";
-            LowPriorityIO = true;
-            StandardOutPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
-            StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
-          };
-        };
+        git-maintenance-hourly = gitMaintenance "hourly" (
+          map (minute: { Minute = minute; }) [
+            0
+            15
+            30
+            45
+          ]
+        );
 
-        git-maintenance-daily = {
-          enable = true;
-          config = {
-            ProgramArguments = [
-              "${pkgs.gitFull}/bin/git"
-              "for-each-repo"
-              "--config=maintenance.repo"
-              "maintenance"
-              "run"
-              "--schedule=daily"
-            ];
-            StartCalendarInterval = [
-              {
-                Hour = 3;
-                Minute = 0;
-              }
-            ];
-            ProcessType = "Background";
-            LowPriorityIO = true;
-            StandardOutPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
-            StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
-          };
-        };
+        git-maintenance-daily = gitMaintenance "daily" [
+          {
+            Hour = 3;
+            Minute = 0;
+          }
+        ];
 
         home-manager-auto-upgrade = {
           enable = true;
@@ -140,28 +100,10 @@
         options = "--delete-older-than 7d";
       };
 
-      manual.manpages.enable = false;
-      programs.man.enable = false;
-
-      xdg = {
-        enable = true;
-
-        configFile = {
-          "btop/btop.conf".source = ../files/macos/btop/btop.conf;
-          "gh/config.yml".source =
-            config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/modules/files/macos/gh/config.yml";
-          "git/ignore".source = ../files/macos/git/ignore;
-          "nix/nix.conf".source = ../files/macos/nix/nix.conf;
-          "zsh/common.zsh".source = ../files/shared/zsh/common.zsh;
-          "zsh/local/gecko.zsh".source = ../files/macos/zsh/gecko.zsh;
-        };
+      xdg.configFile = {
+        "nix/nix.conf".source = ../files/macos/nix/nix.conf;
+        "zsh/common.zsh".source = ../files/shared/zsh/common.zsh;
+        "zsh/local/gecko.zsh".source = ../files/macos/zsh/gecko.zsh;
       };
-
-      assertions = [
-        {
-          assertion = pkgs.stdenv.hostPlatform.isDarwin;
-          message = "homeModules.workMac is only supported on macOS";
-        }
-      ];
     };
 }

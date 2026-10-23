@@ -8,16 +8,11 @@
     }:
     {
       imports = [
-        self.homeModules.kitty
-        self.homeModules.nvim
+        self.homeModules.darwinBase
         self.homeModules.zsh
       ];
 
       home = {
-        username = self.lib.user.darwinUsername;
-        homeDirectory = self.lib.user.darwinHomeDirectory;
-        stateVersion = "25.11";
-
         packages = with pkgs; [
           neovim
           kitty
@@ -50,8 +45,6 @@
         ];
 
         sessionVariables = {
-          EDITOR = "nvim";
-          VISUAL = "nvim";
           RUSTUP_HOME = "${config.home.homeDirectory}/.rustup";
           CARGO_HOME = "${config.home.homeDirectory}/.cargo";
           NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
@@ -64,8 +57,6 @@
       };
 
       programs = {
-        home-manager.enable = true;
-
         fzf.enable = true;
         bat.enable = true;
 
@@ -86,38 +77,10 @@
         git = {
           enable = true;
           lfs.enable = true;
-          settings = {
-            user = {
-              name = self.lib.user.fullName;
-              email = self.lib.user.email;
-              useConfigOnly = true;
-            };
-            core = {
-              editor = "nvim";
-              untrackedCache = true;
-            };
-            credential.helper = "osxkeychain";
-            color.ui = "auto";
-            rebase.updateRefs = true;
-            "credential \"https://github.com\"".helper = [
-              ""
-              "!gh auth git-credential"
-            ];
-            "credential \"https://gist.github.com\"".helper = [
-              ""
-              "!gh auth git-credential"
-            ];
+          settings.user = {
+            name = self.lib.user.fullName;
+            email = self.lib.user.email;
           };
-        };
-      };
-
-      xdg = {
-        enable = true;
-        configFile = {
-          "btop/btop.conf".source = ../files/macos/btop/btop.conf;
-          "gh/config.yml".source =
-            config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/modules/files/macos/gh/config.yml";
-          "git/ignore".source = ../files/macos/git/ignore;
         };
       };
 
@@ -125,15 +88,5 @@
         copyApps.enable = false;
         linkApps.enable = true;
       };
-
-      manual.manpages.enable = false;
-      programs.man.enable = false;
-
-      assertions = [
-        {
-          assertion = pkgs.stdenv.hostPlatform.isDarwin;
-          message = "homeModules.personalMac is only supported on macOS";
-        }
-      ];
     };
 }

@@ -15,15 +15,33 @@
             computerName = "personal-mac";
           };
 
-          nix.settings = {
-            experimental-features = [
-              "nix-command"
-              "flakes"
-            ];
-            trusted-users = [
-              "@admin"
-              self.lib.user.darwinUsername
-            ];
+          nix = {
+            settings = {
+              experimental-features = [
+                "nix-command"
+                "flakes"
+              ];
+              trusted-users = [
+                "@admin"
+                self.lib.user.darwinUsername
+              ];
+            };
+
+            # Home Manager's nh clean only covers user profiles; system
+            # generations from the daily auto-upgrade need a root GC.
+            gc = {
+              automatic = true;
+              interval = [
+                {
+                  Weekday = 0;
+                  Hour = 4;
+                  Minute = 0;
+                }
+              ];
+              options = "--delete-older-than 14d";
+            };
+
+            optimise.automatic = true;
           };
 
           nixpkgs.config = {
@@ -103,7 +121,8 @@
               ];
               ProcessType = "Background";
               LowPriorityIO = true;
-              EnvironmentVariables.PATH = "/nix/var/nix/profiles/default/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+              # nix-darwin's nix, so builds match the daemon's version.
+              EnvironmentVariables.PATH = "/run/current-system/sw/bin:/usr/bin:/bin:/usr/sbin:/sbin";
               StandardOutPath = "/var/log/nix-darwin-auto-upgrade.log";
               StandardErrorPath = "/var/log/nix-darwin-auto-upgrade.log";
             };
