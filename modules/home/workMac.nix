@@ -87,7 +87,6 @@
               "-b"
               "hm-backup"
             ];
-            RunAtLoad = true;
             StartCalendarInterval = [
               {
                 Hour = 3;
