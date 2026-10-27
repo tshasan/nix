@@ -77,7 +77,9 @@
           enable = true;
           config = {
             ProgramArguments = [
-              "${config.programs.home-manager.package}/bin/home-manager"
+              # A store path here would change the plist on every update, and
+              # Home Manager reloads changed agents, killing this run mid-switch.
+              "${config.home.profileDirectory}/bin/home-manager"
               "switch"
               "--flake"
               "${self.lib.user.flakeUrl}#work-mac"
