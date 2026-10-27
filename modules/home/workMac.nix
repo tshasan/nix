@@ -86,6 +86,12 @@
               "hm-backup"
             ];
             RunAtLoad = true;
+            StartCalendarInterval = [
+              {
+                Hour = 3;
+                Minute = 0;
+              }
+            ];
             ProcessType = "Background";
             LowPriorityIO = true;
             EnvironmentVariables.PATH = "/nix/var/nix/profiles/default/bin:/usr/bin:/bin:/usr/sbin:/sbin";
