@@ -22,7 +22,6 @@ _: {
             "sd_mod"
           ];
           kernelModules = [ ];
-          systemd.enable = true;
         };
         kernelModules = [ "kvm-amd" ];
         blacklistedKernelModules = [ "amdgpu" ];
