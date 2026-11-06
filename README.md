@@ -279,6 +279,33 @@ cd ~/firefox
 Use `./mach npm` when Firefox documentation asks for an npm operation. Do not
 add a package to the Brewfile because the Firefox source tree uses it.
 
+For C++ editing alongside artifact builds, keep a separate full-build mozconfig
+at `~/.mozbuild/mozconfig-tooling`:
+
+```sh
+ac_add_options --enable-optimize
+ac_add_options --disable-debug
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-tooling
+```
+
+Refresh the generated headers and compilation database from the checkout:
+
+```console
+MOZCONFIG="$HOME/.mozbuild/mozconfig-tooling" mach configure
+MOZCONFIG="$HOME/.mozbuild/mozconfig-tooling" mach build analysis-prereqs
+MOZCONFIG="$HOME/.mozbuild/mozconfig-tooling" mach build-backend -b Clangd
+```
+
+Point the checkout's `compile_commands.json` symlink at
+`obj-tooling/clangd/compile_commands.json`. This leaves the default artifact
+mozconfig unchanged. Refresh after source updates that change generated headers
+or build configuration; restart clangd afterward.
+
+In Neovim, `<leader>rp` (`:Phab list`) lists your in-flight Phabricator revisions;
+`<leader>ro` (`:Phab current`) opens HEAD's revision. `:Phab open D123` opens a
+revision directly. Selection opens the browser; these commands do not submit,
+checkout, or modify reviews. The list uses the existing `moz-phab` authentication.
+
 ### Mutable and private files
 
 Most managed files are immutable links into the Nix store. Two files link
