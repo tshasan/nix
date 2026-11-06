@@ -35,7 +35,11 @@ _: {
         sessionPath = [ "${config.home.homeDirectory}/.cargo/bin" ];
       };
 
-      xdg.configFile."yazi/yazi.toml".source = ../files/shared/yazi/yazi.toml;
+      xdg.configFile = {
+        "yazi/yazi.toml".source = ../files/shared/yazi/yazi.toml;
+        "yazi/init.lua".source = ../files/shared/yazi/init.lua;
+        "yazi/plugins/git.yazi".source = pkgs.yaziPlugins.git;
+      };
 
       programs = {
         fzf.enable = true;

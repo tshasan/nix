@@ -57,6 +57,8 @@
             config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/modules/files/macos/gh/config.yml";
           "git/ignore".source = ../files/macos/git/ignore;
           "yazi/yazi.toml".source = ../files/shared/yazi/yazi.toml;
+          "yazi/init.lua".source = ../files/shared/yazi/init.lua;
+          "yazi/plugins/git.yazi".source = pkgs.yaziPlugins.git;
         };
       };
 

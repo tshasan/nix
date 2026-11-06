@@ -230,8 +230,9 @@ fragment such as `~/.config/zsh/local/work.zsh`.
 
 Yazi is available on all four hosts, with its default Vim-style keys and
 previews. Nix supplies Yazi and its preview tools on NixOS and `personal-mac`;
-the work Mac uses the packages in `Brewfile`. Hidden files are shown by default;
-shared settings live in `modules/files/shared/yazi/yazi.toml`.
+the work Mac uses the packages in `Brewfile`. Hidden files are shown by default,
+and the `git` plugin from nixpkgs marks each file's Git status on every host.
+Shared settings live in `modules/files/shared/yazi/`.
 
 Run `y` to browse files and leave your shell in the selected directory when
 you quit with `q`. Run `yazi` to browse without changing the shell directory.
