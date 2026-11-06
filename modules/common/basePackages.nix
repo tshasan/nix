@@ -5,7 +5,6 @@ _: {
       environment.systemPackages = with pkgs; [
         neovim
         gitFull
-        lf
         btop
         ripgrep
         fd

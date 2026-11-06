@@ -226,6 +226,19 @@ The shared config checks for optional commands such as `eza`, `direnv`, and
 Work-specific aliases and non-secret environment settings belong in a local
 fragment such as `~/.config/zsh/local/work.zsh`.
 
+### File manager
+
+Yazi is available on all four hosts, with its default Vim-style keys and
+previews. Nix supplies Yazi and its preview tools on NixOS and `personal-mac`;
+the work Mac uses the packages in `Brewfile`. Hidden files are shown by default;
+shared settings live in `modules/files/shared/yazi/yazi.toml`.
+
+Run `y` to browse files and leave your shell in the selected directory when
+you quit with `q`. Run `yazi` to browse without changing the shell directory.
+Use `h/j/k/l` to navigate, `<Enter>` to open a file, `<Space>` to select,
+`.` to toggle hidden files, and `~` for help. Text files open in Neovim through
+the shared `EDITOR` setting. Image previews work in Kitty and Ghostty.
+
 ### Git identities
 
 Identity follows the machine:

@@ -8,6 +8,7 @@ _: {
           gh
           jq
           lazygit
+          yazi
           nodejs
           bun
           deno
@@ -33,6 +34,8 @@ _: {
 
         sessionPath = [ "${config.home.homeDirectory}/.cargo/bin" ];
       };
+
+      xdg.configFile."yazi/yazi.toml".source = ../files/shared/yazi/yazi.toml;
 
       programs = {
         fzf.enable = true;

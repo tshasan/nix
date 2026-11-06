@@ -51,7 +51,6 @@
           spotify
           google-chrome
           eza
-          nnn
           protontricks
           dualsensectl
           gnome-disk-utility

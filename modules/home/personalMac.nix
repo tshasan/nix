@@ -30,7 +30,7 @@
           jq
           lazygit
           eza
-          nnn
+          yazi
           zoxide
           bun
           deno

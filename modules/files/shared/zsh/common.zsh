@@ -31,8 +31,20 @@ else
 fi
 
 alias g="git"
-alias nnn="nnn -a"
 alias vim="nvim"
+
+if (( $+commands[yazi] )); then
+  function y() {
+    local tmp cwd
+    tmp="$(mktemp -t yazi-cwd.XXXXXX)" || return
+    command yazi "$@" --cwd-file="$tmp"
+    IFS= read -r -d '' cwd < "$tmp"
+    if [[ -n "$cwd" && "$cwd" != "$PWD" && -d "$cwd" ]]; then
+      builtin cd -- "$cwd"
+    fi
+    command rm -f -- "$tmp"
+  }
+fi
 
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
 (( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
