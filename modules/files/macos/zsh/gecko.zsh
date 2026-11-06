@@ -73,23 +73,69 @@ mr() {
 
   if (( nightly )) && [[ ! -d $profile ]]; then
     local support="$HOME/Library/Application Support/Firefox"
-    local src=$(awk -F= '
-      /^\[/ { found = 0 }
-      $1 == "Name" && $2 == "default-nightly" { found = 1 }
-      found && $1 == "Path" { print $2; exit }
-    ' "$support/profiles.ini")
+    local staging
+    mkdir -p "$profiles" || return 1
+    staging=$(mktemp -d "$profiles/.nightly-copy.XXXXXXXX") || return 1
 
-    [[ $src == /* ]] || src=$support/$src
+    print "mr: copying Nightly's profile, this only happens on first use or reset"
+    if ! python3.12 - "$support" "$staging/profile" <<'PYTHON'
+import configparser
+import fcntl
+import pathlib
+import subprocess
+import sys
 
-    if [[ ! -d $src ]]; then
-      print -u2 "mr: no 'default-nightly' profile found in $support/profiles.ini"
+support = pathlib.Path(sys.argv[1])
+try:
+    ini = configparser.RawConfigParser()
+    with (support / "profiles.ini").open() as stream:
+        ini.read_file(stream)
+    matches = [section for section in ini.sections()
+               if section.startswith("Profile")
+               and ini.get(section, "Name", fallback="") == "default-nightly"]
+    if len(matches) != 1:
+        raise ValueError("expected exactly one 'default-nightly' profile")
+    section = ini[matches[0]]
+    value = section.get("Path", "").strip()
+    if not value:
+        raise ValueError("Nightly profile has no Path")
+    source = pathlib.Path(value)
+    if section.getboolean("IsRelative", fallback=True):
+        if source.is_absolute():
+            raise ValueError("Nightly profile has an invalid relative Path")
+        source = support / source
+    elif not source.is_absolute():
+        raise ValueError("Nightly profile has an invalid absolute Path")
+    source = source.resolve(strict=True)
+    if pathlib.Path(sys.argv[2]).resolve().is_relative_to(source):
+        raise ValueError("Nightly profile cannot contain the development profiles")
+    if source == support.resolve() or not (source / "prefs.js").is_file():
+        raise ValueError("Nightly Path is not an initialized profile")
+    # Firefox uses an fcntl lock; the lock file can also remain after exit.
+    with (source / ".parentlock").open("a+b") as lock:
+        try:
+            fcntl.lockf(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise ValueError("quit Nightly before copying its profile") from None
+        subprocess.run(["cp", "-Rc", str(source), sys.argv[2]], check=True)
+except (OSError, ValueError, configparser.Error, subprocess.CalledProcessError) as error:
+    print(f"mr: {error}", file=sys.stderr)
+    sys.exit(1)
+PYTHON
+    then
+      rm -rf "$staging"
       return 1
     fi
 
-    print "mr: copying Nightly's profile, this only happens on first use or reset"
-    mkdir -p "$profiles"
-    cp -Rc "$src" "$profile" || return 1
-    rm -f "$profile/lock" "$profile/.parentlock" "$profile/compatibility.ini"
+    # A shared store ID makes Firefox repoint default-nightly in profiles.ini
+    # at this copy, which orphans the real Nightly profile.
+    if ! rm -f "$staging/profile/lock" "$staging/profile/.parentlock" "$staging/profile/compatibility.ini" ||
+      ! sed -i '' '/toolkit\.profiles\.storeID/d' "$staging/profile/prefs.js" ||
+      ! python3.12 -c 'import os, sys; os.rename(sys.argv[1], sys.argv[2])' "$staging/profile" "$profile"; then
+      rm -rf "$staging"
+      return 1
+    fi
+    rmdir "$staging"
   fi
 
   mkdir -p "$profile"
