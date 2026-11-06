@@ -187,6 +187,18 @@ brew bundle --file ~/nix/Brewfile
 home-manager switch --flake ~/nix#work-mac
 ```
 
+A user `launchd` agent also applies `~/nix#work-mac` each day at 3am.
+It uses the same local checkout and lockfile as the manual command; it does
+not pull Git changes or update flake inputs. Add new files to Git before applying
+them, because Git-backed flakes omit untracked files. Locked inputs that are
+not cached still require network access. Failures send a desktop notification
+through Homebrew's `terminal-notifier`; details go to
+`~/Library/Logs/home-manager-auto-upgrade.log`.
+
+Git maintenance runs through Homebrew Git every fifteen minutes and daily
+at 3am for `~/firefox`, with prefetch disabled. Its log is
+`~/Library/Logs/git-maintenance.log`.
+
 `brew bundle` is additive. Review removals before asking Brew to clean them up:
 
 ```console

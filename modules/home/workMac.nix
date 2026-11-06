@@ -4,7 +4,6 @@
     {
       config,
       lib,
-      pkgs,
       ...
     }:
     let
@@ -12,7 +11,7 @@
         enable = true;
         config = {
           ProgramArguments = [
-            "${pkgs.gitFull}/bin/git"
+            "/opt/homebrew/bin/git"
             "for-each-repo"
             "--config=maintenance.repo"
             "maintenance"
@@ -22,6 +21,7 @@
           inherit StartCalendarInterval;
           ProcessType = "Background";
           LowPriorityIO = true;
+          EnvironmentVariables.PATH = "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin";
           StandardOutPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
           StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/git-maintenance.log";
         };
@@ -77,15 +77,27 @@
           enable = true;
           config = {
             ProgramArguments = [
-              # A store path here would change the plist on every update, and
-              # Home Manager reloads changed agents, killing this run mid-switch.
-              "${config.home.profileDirectory}/bin/home-manager"
-              "switch"
-              "--flake"
-              "${self.lib.user.flakeUrl}#work-mac"
-              "--refresh"
-              "-b"
-              "hm-backup"
+              "/bin/sh"
+              "-c"
+              # Keep store paths out of this command: changing the plist during
+              # a scheduled switch would reload the agent and kill its own run.
+              ''
+                ${lib.escapeShellArgs [
+                  "${config.home.profileDirectory}/bin/home-manager"
+                  "switch"
+                  "--flake"
+                  "${config.home.homeDirectory}/nix#work-mac"
+                  "-b"
+                  "hm-backup"
+                ]}
+                result=$?
+                if [ "$result" -ne 0 ]; then
+                  /opt/homebrew/bin/terminal-notifier \
+                    -title 'Home Manager activation failed' \
+                    -message 'Check ~/Library/Logs/home-manager-auto-upgrade.log' || true
+                fi
+                exit "$result"
+              ''
             ];
             StartCalendarInterval = [
               {
@@ -95,7 +107,7 @@
             ];
             ProcessType = "Background";
             LowPriorityIO = true;
-            EnvironmentVariables.PATH = "/nix/var/nix/profiles/default/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+            EnvironmentVariables.PATH = "/opt/homebrew/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin:/usr/sbin:/sbin";
             StandardOutPath = "${config.home.homeDirectory}/Library/Logs/home-manager-auto-upgrade.log";
             StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/home-manager-auto-upgrade.log";
           };
