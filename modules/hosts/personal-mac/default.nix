@@ -104,6 +104,7 @@
             };
             casks = [
               "blackhole-2ch"
+              "rekordbox"
               "sol"
             ];
           };
