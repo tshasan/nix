@@ -19,8 +19,10 @@
           bitwarden-desktop
           iina
           spotify
+          spek
           vesktop
           fd
+          flac
           ripgrep
           tree-sitter
           claude-code
