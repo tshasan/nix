@@ -13,6 +13,13 @@
           networking = {
             hostName = "personal-mac";
             computerName = "personal-mac";
+
+            applicationFirewall = {
+              enable = true;
+              enableStealthMode = true;
+              allowSigned = true;
+              allowSignedApp = false;
+            };
           };
 
           nix = {
@@ -88,6 +95,8 @@
                 _FXSortFoldersFirst = true;
                 FXEnableExtensionChangeWarning = false;
               };
+
+              CustomUserPreferences."com.apple.AdLib".allowApplePersonalizedAdvertising = false;
             };
 
             stateVersion = 5;
