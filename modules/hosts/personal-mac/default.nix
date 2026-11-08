@@ -113,6 +113,7 @@
             };
             casks = [
               "blackhole-2ch"
+              "lulu"
               "rekordbox"
               "sol"
             ];
