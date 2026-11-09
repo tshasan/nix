@@ -41,7 +41,8 @@ mach() {
 #   mr reset            wipe the empty profile first
 #   mr nightly reset    re-copy from Nightly first
 #
-# Anything after that goes to mach run, e.g. `mr nightly --jsdebugger`.
+# nightly and reset can come in either order. Anything after them goes to
+# mach run, e.g. `mr nightly --jsdebugger`.
 #
 # The Nightly profile is looked up by name in profiles.ini rather than by its
 # random directory id. mach rejects --setpref whenever --profile is given, so the
@@ -50,17 +51,19 @@ mach() {
 # already copied the value into prefs.js; set it explicitly or reset the profile.
 mr() {
   local profiles=${MOZBUILD_STATE_PATH:-$HOME/.mozbuild}/dev-profiles
-  local profile=$profiles/plain label="empty profile" nightly=0
+  local profile=$profiles/plain label="empty profile" nightly=0 reset=0
 
-  if [[ $1 == nightly ]]; then
+  while [[ $1 == (nightly|reset) ]]; do
+    [[ $1 == nightly ]] && nightly=1 || reset=1
     shift
-    nightly=1
+  done
+
+  if (( nightly )); then
     profile=$profiles/smartwindow
     label="Nightly copy"
   fi
 
-  if [[ $1 == reset ]]; then
-    shift
+  if (( reset )); then
     if [[ -d $profile ]]; then
       read -q "?mr: wipe the $label at $profile? Your real Nightly profile is not touched. [y/N] " || {
         print
