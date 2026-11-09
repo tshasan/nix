@@ -81,7 +81,8 @@ separate home activation step.
 
 `desktop` runs `system.autoUpgrade` (`modules/features/autoUpgrade.nix`):
 once a day it rebuilds and switches to the latest flake output unattended,
-without rebooting. `vm` does not have this enabled.
+without rebooting. A failed run sends a desktop notification; details are in
+`journalctl -u nixos-upgrade`. `vm` does not have this enabled.
 
 ## macOS (personal-mac, nix-darwin)
 
