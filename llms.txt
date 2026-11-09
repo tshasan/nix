@@ -49,7 +49,8 @@ work identity values must never enter Nix or this repository. Keep
 
 `desktop` and `personal-mac` both rebuild and switch to the latest flake
 output unattended once a day (`system.autoUpgrade` on `desktop`, a `launchd`
-daemon on `personal-mac`). `vm` and `work-mac` do not self-update.
+daemon on `personal-mac`) and send a desktop notification when a run fails.
+`vm` does not self-update; `work-mac` re-applies its local checkout daily.
 
 ## Continuous integration
 

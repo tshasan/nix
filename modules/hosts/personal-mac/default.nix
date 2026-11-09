@@ -119,12 +119,36 @@
             ];
           };
 
+          environment = {
+            systemPackages = [ pkgs.nh ];
+
+            etc."newsyslog.d/nix-darwin-auto-upgrade.conf".text = ''
+              # logfilename                         mode count size(KB) when flags
+              /var/log/nix-darwin-auto-upgrade.log  644  5     1024     *    NJ
+            '';
+          };
+
           launchd.daemons.nix-darwin-auto-upgrade = {
             serviceConfig = {
               ProgramArguments = [
                 "/bin/sh"
                 "-c"
-                "/bin/wait4path ${pkgs.nh}/bin/nh && exec ${pkgs.nh}/bin/nh darwin switch ${self.lib.user.flakeUrl}#personal-mac --refresh --elevation-strategy /usr/bin/sudo --bypass-root-check"
+                # Keep store paths out of this command: changing the plist during
+                # a scheduled switch would reload the daemon and kill its own run.
+                # The system profile lives on the Nix volume, so wait4path still
+                # holds the boot-time run until /nix is mounted.
+                ''
+                  nh=/nix/var/nix/profiles/system/sw/bin/nh
+                  /bin/wait4path "$nh" || exit 1
+                  "$nh" darwin switch ${self.lib.user.flakeUrl}#personal-mac --refresh --no-nom --elevation-strategy /usr/bin/sudo --bypass-root-check
+                  result=$?
+                  if [ "$result" -ne 0 ]; then
+                    /bin/launchctl asuser "$(/usr/bin/id -u ${self.lib.user.darwinUsername})" \
+                      /usr/bin/sudo -u ${self.lib.user.darwinUsername} /usr/bin/osascript \
+                      -e 'display notification "Check /var/log/nix-darwin-auto-upgrade.log" with title "nix-darwin auto-upgrade failed"' || true
+                  fi
+                  exit "$result"
+                ''
               ];
               RunAtLoad = true;
               StartCalendarInterval = [

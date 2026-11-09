@@ -137,8 +137,9 @@ additions here instead of installing ad hoc with `brew install`.
 
 A `launchd` daemon (`nix-darwin-auto-upgrade`, defined inline in
 `modules/hosts/personal-mac/default.nix`) rebuilds and switches to the latest
-flake output unattended every day at 3am. Logs go to
-`/var/log/nix-darwin-auto-upgrade.log`.
+flake output unattended every day at 3am. A failed run sends a desktop
+notification. Logs go to `/var/log/nix-darwin-auto-upgrade.log`, which
+`newsyslog` rotates at 1 MB, keeping five compressed copies.
 
 ## macOS (work-mac, dotfiles only)
 
