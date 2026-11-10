@@ -1,0 +1,6 @@
+# Enter on a file already opens it in $EDITOR; e opens the whole directory in nvim.
+# q (via the y shell function) quits and leaves the shell in yazi's directory.
+[[mgr.prepend_keymap]]
+on = "e"
+run = "shell --block 'nvim .'"
+desc = "Open directory in nvim"

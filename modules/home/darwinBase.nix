@@ -58,6 +58,7 @@
           "git/ignore".source = ../files/macos/git/ignore;
           "yazi/yazi.toml".source = ../files/shared/yazi/yazi.toml;
           "yazi/init.lua".source = ../files/shared/yazi/init.lua;
+          "yazi/keymap.toml".source = ../files/shared/yazi/keymap.toml;
           "yazi/plugins/git.yazi".source = pkgs.yaziPlugins.git;
         };
       };
