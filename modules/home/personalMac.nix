@@ -31,6 +31,8 @@
           jujutsu
           jq
           lazygit
+          btop
+          fastfetch
           eza
           yazi
           zoxide
