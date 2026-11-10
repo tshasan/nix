@@ -9,6 +9,7 @@ _: {
           jq
           lazygit
           yazi
+          zoxide
           nodejs
           bun
           deno
