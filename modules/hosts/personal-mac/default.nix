@@ -105,27 +105,6 @@
             };
 
             activationScripts.postActivation.text = ''
-              MARKER="# BEGIN AUDIO PLUGIN SANDBOX"
-              if ! grep -q "$MARKER" /etc/hosts; then
-                cat << 'EOF' >> /etc/hosts
-
-              # BEGIN AUDIO PLUGIN SANDBOX
-              127.0.0.1 api.izotope.com
-              127.0.0.1 authorization.izotope.com
-              127.0.0.1 izotopesuites.sp.backtrace.io
-              127.0.0.1 door.event-bus.io
-              127.0.0.1 www.fabfilter.com
-              ::1 api.izotope.com
-              ::1 authorization.izotope.com
-              ::1 izotopesuites.sp.backtrace.io
-              ::1 door.event-bus.io
-              ::1 www.fabfilter.com
-              # END AUDIO PLUGIN SANDBOX
-              EOF
-                /usr/bin/dscacheutil -flushcache || true
-                /usr/bin/killall -HUP mDNSResponder || true
-              fi
-
               for dir in "/Library/Audio/Plug-Ins/Components" "/Library/Audio/Plug-Ins/VST3"; do
                 if [ -d "$dir" ]; then
                   /usr/sbin/chown -R root:wheel "$dir"

@@ -152,13 +152,6 @@ it strips group and world write from the plug-in directories, forces
 updater payload, deletes the iZotope crash reporter, and disables iZotope
 analytics and update checks through `system.defaults`.
 
-It also appends an `AUDIO PLUGIN SANDBOX` block to `/etc/hosts` that points
-`api.izotope.com`, `authorization.izotope.com`, `izotopesuites.sp.backtrace.io`,
-`door.event-bus.io`, and `www.fabfilter.com` at loopback. That stops patched
-plug-ins from phoning home or overwriting themselves, and it also blocks those
-hosts in the browser. Remove the block from `/etc/hosts` and the
-`activationScripts.postActivation` stanza to undo it.
-
 ## macOS (work-mac, dotfiles only)
 
 The `work-mac` output supports Apple Silicon and expects this repository at
