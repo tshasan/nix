@@ -1,11 +1,11 @@
-_: {
+{ inputs, ... }: {
   flake.homeModules.dev =
     { pkgs, config, ... }:
     {
       home = {
         packages = with pkgs; [
           claude-code
-          pi-coding-agent
+          inputs.pi.packages.${pkgs.stdenv.hostPlatform.system}.default
           gh
           jq
           lazygit

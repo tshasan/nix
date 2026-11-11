@@ -1,4 +1,4 @@
-{ self, ... }:
+{ self, inputs, ... }:
 {
   flake.homeModules.personalMac =
     {
@@ -27,7 +27,7 @@
           tree-sitter
           claude-code
           codex
-          pi-coding-agent
+          inputs.pi.packages.${pkgs.stdenv.hostPlatform.system}.default
           gh
           jujutsu
           jq

@@ -24,6 +24,7 @@ jobs:
           - nix-darwin
           - chaotic
           - firefox-addons
+          - pi
           - treefmt-nix
           - git-hooks-nix
     steps:
