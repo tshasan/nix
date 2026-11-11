@@ -144,10 +144,15 @@ notification. Logs go to `/var/log/nix-darwin-auto-upgrade.log`, which
 ### Audio plug-ins
 
 Third-party Audio Units and VST3s live outside Nix, installed by vendor
-packages rather than Home Manager, and several installers leave the plug-in
-directories group- and world-writable. The `personal-mac` activation script
-strips those write bits, and `system.defaults` disables iZotope analytics and
-update checks.
+packages rather than Home Manager, and several installers leave
+`/Library/Audio/Plug-Ins` group- and world-writable. The `personal-mac`
+activation script strips those write bits, and `system.defaults` disables
+iZotope analytics and update checks.
+
+macOS App Management protects `.app` bundles even from root, so keep the
+activation script scoped to `/Library/Audio/Plug-Ins`; a stray installer copy
+such as `Kilohearts Installer.app` cannot be repaired without granting the
+terminal App Management, and is safe to leave or delete.
 
 ## macOS (work-mac, dotfiles only)
 

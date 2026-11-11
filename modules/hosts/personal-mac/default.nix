@@ -105,7 +105,7 @@
             };
 
             activationScripts.postActivation.text = ''
-              /bin/chmod -R go-w "/Library/Audio/Plug-Ins" "/Library/Application Support/Kilohearts"
+              /bin/chmod -R go-w "/Library/Audio/Plug-Ins"
             '';
 
             stateVersion = 5;
