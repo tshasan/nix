@@ -143,14 +143,11 @@ notification. Logs go to `/var/log/nix-darwin-auto-upgrade.log`, which
 
 ### Audio plug-ins
 
-Third-party Audio Units and VST3s live outside Nix, in
-`/Library/Audio/Plug-Ins` and `/Library/Application Support`, installed by
-vendor packages rather than Home Manager. The activation script in
-`modules/hosts/personal-mac/default.nix` keeps that untracked tree predictable:
-it strips group and world write from the plug-in directories, forces
-`/Library/Audio/Plug-Ins` to `root:wheel`, removes the staged Kilohearts
-updater payload, deletes the iZotope crash reporter, and disables iZotope
-analytics and update checks through `system.defaults`.
+Third-party Audio Units and VST3s live outside Nix, installed by vendor
+packages rather than Home Manager, and several installers leave the plug-in
+directories group- and world-writable. The `personal-mac` activation script
+strips those write bits, and `system.defaults` disables iZotope analytics and
+update checks.
 
 ## macOS (work-mac, dotfiles only)
 

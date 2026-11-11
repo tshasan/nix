@@ -105,38 +105,7 @@
             };
 
             activationScripts.postActivation.text = ''
-              for dir in "/Library/Audio/Plug-Ins/Components" "/Library/Audio/Plug-Ins/VST3"; do
-                if [ -d "$dir" ]; then
-                  /usr/sbin/chown -R root:wheel "$dir"
-                  /bin/chmod -R go-w "$dir"
-                fi
-              done
-
-              if [ -d "/Library/Application Support/Kilohearts" ]; then
-                /usr/sbin/chown root:admin "/Library/Application Support/Kilohearts"
-                /bin/chmod 755 "/Library/Application Support/Kilohearts"
-                /bin/chmod -R go-w "/Library/Application Support/Kilohearts"
-                for bundle in "HeartCore.core" "Kilohearts Installer.app"; do
-                  if [ -e "/Library/Application Support/Kilohearts/$bundle" ]; then
-                    /usr/sbin/chown -R root:wheel "/Library/Application Support/Kilohearts/$bundle"
-                  fi
-                done
-                if [ -f "/Library/Application Support/Kilohearts/kiloHearts.log" ]; then
-                  /usr/sbin/chown ${self.lib.user.darwinUsername}:admin "/Library/Application Support/Kilohearts/kiloHearts.log"
-                  /bin/chmod 644 "/Library/Application Support/Kilohearts/kiloHearts.log"
-                fi
-                /bin/rm -f "/Library/Application Support/Kilohearts/installer.update" "/Library/Application Support/Kilohearts/installer.update.meta"
-              fi
-
-              for dir in "/Library/Application Support/Valhalla DSP, LLC" "/Library/Application Support/iZotope"; do
-                if [ -d "$dir" ]; then
-                  /bin/chmod -R go-w "$dir"
-                fi
-              done
-
-              /bin/rm -rf \
-                "/Library/Application Support/iZotope/RX 11 Audio Editor/Crash Reporter" \
-                "/Library/Application Support/iZotope/RX 11 Audio Editor/.internals"
+              /bin/chmod -R go-w "/Library/Audio/Plug-Ins" "/Library/Application Support/Kilohearts"
             '';
 
             stateVersion = 5;
