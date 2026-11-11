@@ -5,6 +5,7 @@ _: {
       home = {
         packages = with pkgs; [
           claude-code
+          pi-coding-agent
           gh
           jq
           lazygit

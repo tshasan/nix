@@ -27,6 +27,7 @@
           tree-sitter
           claude-code
           codex
+          pi-coding-agent
           gh
           jujutsu
           jq
