@@ -52,6 +52,17 @@ output unattended once a day (`system.autoUpgrade` on `desktop`, a `launchd`
 daemon on `personal-mac`) and send a desktop notification when a run fails.
 `vm` does not self-update; `work-mac` re-applies its local checkout daily.
 
+## Audio plug-ins
+
+Third-party Audio Units and VST3s are installed by vendor packages outside Nix.
+The `personal-mac` activation script in `modules/hosts/personal-mac/default.nix`
+strips group/world write from `/Library/Audio/Plug-Ins` and
+`/Library/Application Support/{Kilohearts,Valhalla DSP, LLC,iZotope}`, removes
+the Kilohearts staged updater and the iZotope crash reporter, disables iZotope
+analytics and update checks, and appends an `AUDIO PLUGIN SANDBOX` block to
+`/etc/hosts` that blackholes iZotope and FabFilter update/authorization hosts.
+Do not add plug-in files to this repository; only the hardening lives here.
+
 ## Continuous integration
 
 `check.yml` evaluates all four host outputs and runs `treefmt`/`pre-commit`

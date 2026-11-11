@@ -141,6 +141,24 @@ flake output unattended every day at 3am. A failed run sends a desktop
 notification. Logs go to `/var/log/nix-darwin-auto-upgrade.log`, which
 `newsyslog` rotates at 1 MB, keeping five compressed copies.
 
+### Audio plug-ins
+
+Third-party Audio Units and VST3s live outside Nix, in
+`/Library/Audio/Plug-Ins` and `/Library/Application Support`, installed by
+vendor packages rather than Home Manager. The activation script in
+`modules/hosts/personal-mac/default.nix` keeps that untracked tree predictable:
+it strips group and world write from the plug-in directories, forces
+`/Library/Audio/Plug-Ins` to `root:wheel`, removes the staged Kilohearts
+updater payload, deletes the iZotope crash reporter, and disables iZotope
+analytics and update checks through `system.defaults`.
+
+It also appends an `AUDIO PLUGIN SANDBOX` block to `/etc/hosts` that points
+`api.izotope.com`, `authorization.izotope.com`, `izotopesuites.sp.backtrace.io`,
+`door.event-bus.io`, and `www.fabfilter.com` at loopback. That stops patched
+plug-ins from phoning home or overwriting themselves, and it also blocks those
+hosts in the browser. Remove the block from `/etc/hosts` and the
+`activationScripts.postActivation` stanza to undo it.
+
 ## macOS (work-mac, dotfiles only)
 
 The `work-mac` output supports Apple Silicon and expects this repository at

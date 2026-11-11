@@ -96,8 +96,69 @@
                 FXEnableExtensionChangeWarning = false;
               };
 
-              CustomUserPreferences."com.apple.AdLib".allowApplePersonalizedAdvertising = false;
+              CustomUserPreferences = {
+                "com.apple.AdLib".allowApplePersonalizedAdvertising = false;
+                "com.izotope".EnableAnalytics = 0;
+                "com.izotope.RX11".CheckForUpdates = false;
+                "com.izotope.rx11".CheckForUpdates = false;
+              };
             };
+
+            activationScripts.postActivation.text = ''
+              MARKER="# BEGIN AUDIO PLUGIN SANDBOX"
+              if ! grep -q "$MARKER" /etc/hosts; then
+                cat << 'EOF' >> /etc/hosts
+
+              # BEGIN AUDIO PLUGIN SANDBOX
+              127.0.0.1 api.izotope.com
+              127.0.0.1 authorization.izotope.com
+              127.0.0.1 izotopesuites.sp.backtrace.io
+              127.0.0.1 door.event-bus.io
+              127.0.0.1 www.fabfilter.com
+              ::1 api.izotope.com
+              ::1 authorization.izotope.com
+              ::1 izotopesuites.sp.backtrace.io
+              ::1 door.event-bus.io
+              ::1 www.fabfilter.com
+              # END AUDIO PLUGIN SANDBOX
+              EOF
+                /usr/bin/dscacheutil -flushcache || true
+                /usr/bin/killall -HUP mDNSResponder || true
+              fi
+
+              for dir in "/Library/Audio/Plug-Ins/Components" "/Library/Audio/Plug-Ins/VST3"; do
+                if [ -d "$dir" ]; then
+                  /usr/sbin/chown -R root:wheel "$dir"
+                  /bin/chmod -R go-w "$dir"
+                fi
+              done
+
+              if [ -d "/Library/Application Support/Kilohearts" ]; then
+                /usr/sbin/chown root:admin "/Library/Application Support/Kilohearts"
+                /bin/chmod 755 "/Library/Application Support/Kilohearts"
+                /bin/chmod -R go-w "/Library/Application Support/Kilohearts"
+                for bundle in "HeartCore.core" "Kilohearts Installer.app"; do
+                  if [ -e "/Library/Application Support/Kilohearts/$bundle" ]; then
+                    /usr/sbin/chown -R root:wheel "/Library/Application Support/Kilohearts/$bundle"
+                  fi
+                done
+                if [ -f "/Library/Application Support/Kilohearts/kiloHearts.log" ]; then
+                  /usr/sbin/chown ${self.lib.user.darwinUsername}:admin "/Library/Application Support/Kilohearts/kiloHearts.log"
+                  /bin/chmod 644 "/Library/Application Support/Kilohearts/kiloHearts.log"
+                fi
+                /bin/rm -f "/Library/Application Support/Kilohearts/installer.update" "/Library/Application Support/Kilohearts/installer.update.meta"
+              fi
+
+              for dir in "/Library/Application Support/Valhalla DSP, LLC" "/Library/Application Support/iZotope"; do
+                if [ -d "$dir" ]; then
+                  /bin/chmod -R go-w "$dir"
+                fi
+              done
+
+              /bin/rm -rf \
+                "/Library/Application Support/iZotope/RX 11 Audio Editor/Crash Reporter" \
+                "/Library/Application Support/iZotope/RX 11 Audio Editor/.internals"
+            '';
 
             stateVersion = 5;
           };
