@@ -10,3 +10,4 @@ nvim.log
 .claude/settings.local.json
 .gitleaks.local.toml
 .work-mac-private-manifest
+.pi/

@@ -21,6 +21,7 @@
           spotify
           spek
           vesktop
+          obsidian
           fd
           flac
           ripgrep
