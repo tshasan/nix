@@ -9,9 +9,9 @@
 
       # sched_ext is compiled into the CachyOS kernel; load scx_lavd, its
       # latency-aware desktop scheduler, for smoother UI/scroll under load.
-      services.scx = {
+      services.scx-loader = {
         enable = true;
-        scheduler = "scx_lavd";
+        config.default_sched = "scx_lavd";
       };
 
       # BBR + fq: better real-world page-load throughput than cubic/fq_codel.
