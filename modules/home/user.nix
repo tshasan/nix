@@ -43,7 +43,7 @@
 
             jdks = [
               graalvmPackages.graalvm-ce
-              zulu8
+              (zulu8.override { gtkSupport = false; })
               zulu17
               zulu
             ];
