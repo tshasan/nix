@@ -8,7 +8,13 @@ return {
     keys = {
       {
         "<leader>cp",
-        "<cmd>LivePreview start<cr>",
+        function()
+          -- Files outside the cwd can't be served from it (the URL becomes
+          -- /nil and 404s), so serve those from their own directory.
+          local file = vim.api.nvim_buf_get_name(0)
+          require("livepreview.config").config.dynamic_root = vim.fs.relpath(vim.fn.getcwd(), file) == nil
+          vim.cmd("LivePreview start")
+        end,
         ft = { "markdown", "html" },
         desc = "Preview in Browser",
       },
