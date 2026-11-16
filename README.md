@@ -1,7 +1,5 @@
 # nixos
 
-[![check](https://github.com/tshasan/nix/actions/workflows/check.yml/badge.svg)](https://github.com/tshasan/nix/actions/workflows/check.yml)
-
 Personal configuration for two NixOS hosts and two Apple Silicon Macs.
 The repository uses flake-parts, Home Manager, and a small
 platform boundary:
@@ -46,19 +44,6 @@ modules/
   files/             source-controlled dotfiles
 ```
 
-## Continuous integration
-
-- `check.yml` runs on every push and pull request: it evaluates all four
-  host outputs (`desktop`, `vm`, `personal-mac`, `work-mac`) so a broken
-  config fails CI without a full build, then runs the `treefmt` and
-  `pre-commit` checks.
-- `update-flake-lock.yml` processes flake inputs one at a time. For each changed
-  input it opens or refreshes a pull request, waits for `check` and the merge to
-  finish, then starts the next input from the updated `main` branch.
-- Branch protection on `main` requires the `check` status check. That gates
-  the auto-merge above, not direct pushes. Secret-scanning push protection is
-  enabled repo-wide. Dependabot watches the Action versions used in both
-  workflows.
 
 ## NixOS
 
