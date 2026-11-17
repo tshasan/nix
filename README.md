@@ -1,12 +1,12 @@
 # nixos
 
-Personal configuration for two NixOS hosts and two Apple Silicon Macs.
+Personal configuration for three NixOS hosts and two Apple Silicon Macs.
 The repository uses flake-parts, Home Manager, and a small
 platform boundary:
 
 | Target | Packages and applications | Dotfiles |
 | --- | --- | --- |
-| `desktop`, `vm` | NixOS and Home Manager | Home Manager |
+| `desktop`, `vm`, `macbook` | NixOS and Home Manager | Home Manager |
 | `personal-mac` | nix-darwin and Home Manager; Homebrew for GUI casks only | Home Manager |
 | `work-mac` | Homebrew | Home Manager |
 
@@ -21,6 +21,7 @@ defaults, and Homebrew is limited to the casks declared in
 
 - `desktop`: the main AMD/NVIDIA NixOS workstation.
 - `vm`: a smaller NixOS configuration for testing.
+- `macbook`: a 13" M1 MacBook Pro running NixOS on Asahi Linux.
 - `personal-mac`: full nix-darwin system with Home Manager integrated as a
   darwin module.
 - `work-mac`: standalone Home Manager dotfiles; no nix-darwin.
@@ -39,7 +40,7 @@ modules/
   user.nix           personal identity, home paths, and flake location
   common/            shared NixOS modules
   features/          optional NixOS features
-  hosts/             desktop, vm, personal-mac, and work-mac outputs
+  hosts/             desktop, vm, macbook, personal-mac, and work-mac outputs
   home/              Home Manager modules
   files/             source-controlled dotfiles
 ```
@@ -68,6 +69,114 @@ separate home activation step.
 once a day it rebuilds and switches to the latest flake output unattended,
 without rebooting. A failed run sends a desktop notification; details are in
 `journalctl -u nixos-upgrade`. `vm` does not have this enabled.
+
+## Asahi (macbook)
+
+`macbook` is a 13" M1 MacBook Pro (MacBookPro17,1, 8 GB, 256 GB) running
+NixOS on Asahi through
+[nixos-apple-silicon](https://github.com/nix-community/nixos-apple-silicon).
+It runs GNOME on a LUKS2-encrypted root with the same home modules as
+`desktop`, plus Google Chrome.
+
+Firefox and Tor Browser are the official Mozilla and Tor Project tarballs,
+not Nix packages, so their built-in updaters apply signed updates as soon as
+they ship (nixpkgs lags by a day or more). `programs.nix-ld` supplies the
+libraries they expect. Home Manager still manages the Firefox profile
+(settings and extensions) and its desktop entry. Install both once,
+verifying each signature, and only continue past `gpg --verify` if it reports
+a good signature from the expected key:
+
+```console
+mkdir -p ~/.local/opt && cd /tmp
+
+# Firefox: download the latest linux-aarch64 en-US tarball, its .asc
+# signature, and the release KEY from Mozilla's release archive into /tmp.
+# Expected key: "Mozilla Software Releases",
+# 14F2 6682 D091 6CDD 81E3  7B6D 61B7 B526 D98F 0353
+gpg --import KEY
+gpg --verify firefox-*.tar.xz.asc
+tar -xJf firefox-*.tar.xz -C ~/.local/opt
+
+# Tor Browser: "Tor Browser Developers",
+# EF6E 286D DA85 EA2A 4BA7  DE68 4E2C 6E87 9329 8290
+v=$(curl -s https://aus1.torproject.org/torbrowser/update_3/release/downloads.json | jq -r .version)
+curl -LO "https://dist.torproject.org/torbrowser/$v/tor-browser-linux-aarch64-$v.tar.xz"
+curl -LO "https://dist.torproject.org/torbrowser/$v/tor-browser-linux-aarch64-$v.tar.xz.asc"
+gpg --auto-key-locate nodefault,wkd --locate-keys torbrowser@torproject.org
+gpg --verify "tor-browser-linux-aarch64-$v.tar.xz.asc"
+tar -xJf "tor-browser-linux-aarch64-$v.tar.xz" -C ~/.local/opt
+~/.local/opt/tor-browser/start-tor-browser.desktop --register-app
+```
+
+Both check for updates while running and apply them on restart.
+
+nixos-apple-silicon currently has no binary cache, so the Asahi kernel
+builds locally (a few hours on this machine) whenever nixpkgs moves. For that
+reason this host has no `system.autoUpgrade`.
+
+### First setup
+
+Follow the upstream
+[installation guide](https://github.com/nix-community/nixos-apple-silicon/blob/main/docs/uefi-standalone.md)
+to run the Asahi installer from macOS. Choose "UEFI environment only", name
+the OS `NixOS`, and boot the NixOS installer. Create the root partition in
+the free space as the guide describes, then label, encrypt, and mount
+everything. The config finds every filesystem by these labels, so there are
+no UUIDs to copy back into the repository:
+
+```console
+esp="/dev/disk/by-partuuid/$(tr -d '\0' < /proc/device-tree/chosen/asahi,efi-system-partition)"
+fatlabel "$esp" NIXBOOT
+cryptsetup luksFormat --type luks2 --label cryptnixos /dev/nvme0n1pN
+cryptsetup open /dev/nvme0n1pN cryptroot
+mkfs.ext4 -L nixos /dev/mapper/cryptroot
+mount /dev/mapper/cryptroot /mnt
+mkdir -p /mnt/boot && mount "$esp" /mnt/boot
+```
+
+The installer's `/tmp` is RAM, and the first install compiles the Asahi
+kernel, which does not fit in 8 GB. Build on the target disk instead, with
+the same 8 GiB swapfile the installed system will adopt:
+
+```console
+mkdir -p /mnt/var/lib /mnt/tmp
+dd if=/dev/zero of=/mnt/var/lib/swapfile bs=1M count=8192 status=progress
+chmod 600 /mnt/var/lib/swapfile && mkswap /mnt/var/lib/swapfile && swapon /mnt/var/lib/swapfile
+git clone https://github.com/tshasan/nix.git /mnt/tmp/nix
+TMPDIR=/mnt/tmp nixos-install --no-root-passwd --flake /mnt/tmp/nix#macbook
+nixos-enter --root /mnt -c 'passwd taimur'
+```
+
+After reboot, clone the repository to `~/nix` and use `nh os switch`.
+
+### State outside the config
+
+These parts of the machine change on their own schedules. Nix does not
+track them:
+
+- **m1n1, U-Boot and the device trees** are a single `m1n1/boot.bin` on the
+  ESP, rewritten on every switch. Picking an older generation in the boot
+  menu rolls back the kernel and initrd but not these. After a kernel
+  upgrade, a rollback can boot an old kernel against new device trees.
+- **Peripheral firmware** (`vendorfw/firmware.cpio` on the ESP) is extracted
+  from macOS by the Asahi installer and only refreshed when you rerun it
+  (see below). If the loader cannot find the ESP, it skips without failing,
+  and the symptom is simply no Wi-Fi or webcam.
+- **The Asahi kernel follows the repository's nixpkgs.** Every
+  `nix flake update`, wherever you run it, means a multi-hour local kernel
+  build on the next `nh os switch` here.
+- **Firefox and Tor Browser** live in `~/.local/opt` and update themselves.
+  NixOS rollbacks do not touch them, and a nixpkgs update can change the
+  `nix-ld` libraries underneath them. If one stops starting after a switch,
+  run it from a terminal and look for a missing library.
+- **The battery limit** has two possible writers: the udev rule here, and
+  GNOME's "Preserve Battery Health" switch. Leave the GNOME switch alone, or
+  it will undo the 80% limit.
+
+Wi-Fi, webcam, and ambient-light firmware is loaded from the ESP at boot.
+To refresh it after a macOS update, run `curl https://alx.sh | sh` from macOS
+and pick "Rebuild vendor firmware package". Apple system firmware updates
+only arrive through macOS, so keep the macOS install updated.
 
 ## macOS (personal-mac, nix-darwin)
 

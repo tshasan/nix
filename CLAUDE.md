@@ -4,11 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Personal configuration for one user across two NixOS hosts and two Apple
+Personal configuration for one user across three NixOS hosts and two Apple
 Silicon Macs:
 
 - `desktop`: main workstation.
 - `vm`: lightweight NixOS test target.
+- `macbook`: 13" M1 MacBook Pro (8 GB) on Asahi via `nixos-apple-silicon`,
+  a normal laptop with a LUKS root and the shared home modules
+  (`homeModules.macbook`). The Asahi kernel has no binary cache and builds
+  locally on every nixpkgs bump, so this host has no auto-upgrade.
 - `personal-mac`: full nix-darwin system, home-manager integrated as a
   darwin module (same pattern as the NixOS hosts). Nix owns packages,
   applications (via `homebrew.casks`), and system defaults.
