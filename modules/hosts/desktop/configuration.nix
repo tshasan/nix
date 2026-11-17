@@ -6,22 +6,13 @@
       imports = [
         self.nixosModules.desktopHardware
         self.nixosModules.cachyos
-        self.nixosModules.nix
-        self.nixosModules.locale
+        self.nixosModules.workstation
         self.nixosModules.ssh
-        self.nixosModules.basePackages
-        self.nixosModules.users
-        self.nixosModules.homeManager
         self.nixosModules.audio
-        self.nixosModules.fonts
-        self.nixosModules.viewers
-        self.nixosModules.nemo
-        self.nixosModules.bluetooth
         self.nixosModules.containers
         self.nixosModules.screenTools
         self.nixosModules.desktopServices
         self.nixosModules.gaming
-        self.nixosModules.gnome
         self.nixosModules.autoUpgrade
       ];
 

@@ -1,37 +1,18 @@
 { self, ... }:
 {
-  flake.homeModules.macbook =
+  flake.homeModules.macbookHome =
     { lib, pkgs, ... }:
     let
-      inherit (self.lib.user) username homeDirectory;
+      inherit (self.lib.user) homeDirectory;
       firefox = "${homeDirectory}/.local/opt/firefox/firefox";
     in
     {
-      imports = [
-        self.homeModules.kitty
-        self.homeModules.zsh
-        self.homeModules.git
-        self.homeModules.firefox
-        self.homeModules.thunderbird
-        self.homeModules.dev
-        self.homeModules.mpv
-        self.homeModules.desktop
-        self.homeModules.gnome
-        self.homeModules.theming
-        self.homeModules.qbittorrent
-        self.homeModules.nvim
-      ];
-
       home = {
-        inherit username homeDirectory;
         stateVersion = "26.11";
 
         packages = with pkgs; [
-          google-chrome
           gnupg
           vesktop
-          eza
-          gnome-disk-utility
         ];
       };
 
@@ -46,8 +27,6 @@
           profiles.default.settings."browser.tabs.unloadOnLowMemory" = true;
         };
         mpv.config.hwdec = "auto-safe";
-
-        home-manager.enable = true;
       };
 
       xdg.desktopEntries.firefox = {

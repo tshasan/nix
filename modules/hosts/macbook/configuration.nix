@@ -5,16 +5,7 @@
     {
       imports = [
         self.nixosModules.macbookHardware
-        self.nixosModules.nix
-        self.nixosModules.locale
-        self.nixosModules.basePackages
-        self.nixosModules.users
-        self.nixosModules.homeManager
-        self.nixosModules.fonts
-        self.nixosModules.viewers
-        self.nixosModules.nemo
-        self.nixosModules.bluetooth
-        self.nixosModules.gnome
+        self.nixosModules.workstation
       ];
 
       boot.loader = {
@@ -74,7 +65,10 @@
         ];
       };
 
-      home-manager.users.${self.lib.user.username}.imports = [ self.homeModules.macbook ];
+      home-manager.users.${self.lib.user.username}.imports = [
+        self.homeModules.user
+        self.homeModules.macbookHome
+      ];
 
       system.stateVersion = "26.11";
     };

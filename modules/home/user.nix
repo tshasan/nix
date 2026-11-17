@@ -21,40 +21,15 @@
         self.homeModules.nvim
       ];
 
+      # Shared by every NixOS GNOME machine. Host-only apps and each host's
+      # stateVersion live in hosts/<host>/home.nix.
       home = {
         inherit username homeDirectory;
-        stateVersion = "25.11";
 
         packages = with pkgs; [
-          (vesktop.overrideAttrs (old: {
-            postInstall = (old.postInstall or "") + ''
-              for d in $out/share/icons/hicolor/*/apps; do
-                cp -f ${discord}/share/icons/hicolor/256x256/apps/discord.png "$d/vesktop.png"
-              done
-            '';
-            postFixup = (old.postFixup or "") + ''
-              substituteInPlace $out/share/applications/vesktop.desktop \
-                --replace-fail "Name=Vesktop" "Name=Discord"
-            '';
-          }))
-
-          (prismlauncher.override {
-            additionalPrograms = [ ffmpeg ];
-
-            jdks = [
-              graalvmPackages.graalvm-ce
-              (zulu8.override { gtkSupport = false; })
-              zulu17
-              zulu
-            ];
-          })
-          spotify
           google-chrome
           eza
-          protontricks
-          dualsensectl
           gnome-disk-utility
-
         ];
       };
 

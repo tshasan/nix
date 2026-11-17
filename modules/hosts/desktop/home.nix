@@ -1,9 +1,41 @@
 _: {
-  # Home settings tied to this machine's hardware: x86_64 binary builds,
-  # the NVIDIA VA-API stack, 32 GB of RAM, and a 180 Hz display.
+  # Home settings tied to this machine: its x86_64-only apps and binary
+  # builds, the NVIDIA VA-API stack, 32 GB of RAM, and a 180 Hz display.
   flake.homeModules.desktopHome =
     { pkgs, ... }:
     {
+      home = {
+        stateVersion = "25.11";
+
+        packages = with pkgs; [
+          (vesktop.overrideAttrs (old: {
+            postInstall = (old.postInstall or "") + ''
+              for d in $out/share/icons/hicolor/*/apps; do
+                cp -f ${discord}/share/icons/hicolor/256x256/apps/discord.png "$d/vesktop.png"
+              done
+            '';
+            postFixup = (old.postFixup or "") + ''
+              substituteInPlace $out/share/applications/vesktop.desktop \
+                --replace-fail "Name=Vesktop" "Name=Discord"
+            '';
+          }))
+
+          (prismlauncher.override {
+            additionalPrograms = [ ffmpeg ];
+
+            jdks = [
+              graalvmPackages.graalvm-ce
+              (zulu8.override { gtkSupport = false; })
+              zulu17
+              zulu
+            ];
+          })
+          spotify
+          protontricks
+          dualsensectl
+        ];
+      };
+
       programs = {
         firefox = {
           package = pkgs.firefox-bin;

@@ -11,7 +11,7 @@ Silicon Macs:
 - `vm`: lightweight NixOS test target.
 - `macbook`: 13" M1 MacBook Pro (8 GB) on Asahi via `nixos-apple-silicon`,
   a normal laptop with a LUKS root and the shared home modules
-  (`homeModules.macbook`). The Asahi kernel has no binary cache and builds
+  (`homeModules.user` plus `homeModules.macbookHome`). The Asahi kernel has no binary cache and builds
   locally on every nixpkgs bump, so this host has no auto-upgrade.
 - `personal-mac`: full nix-darwin system, home-manager integrated as a
   darwin module (same pattern as the NixOS hosts). Nix owns packages,
@@ -96,10 +96,11 @@ modules/
   user.nix           flake.lib.user: personal identity, home, SSH, and flake location
   common/            flake.nixosModules.*: system-wide (locale, nix, ssh, users, base-packages)
   features/          flake.nixosModules.*: optional system features (audio, bluetooth, gaming, gnome, …)
-  hosts/<host>/      NixOS host assembly, the personal-mac nix-darwin
-                     assembly, and the standalone work-mac output
+  hosts/workstation.nix  flake.nixosModules.workstation: modules every GNOME machine imports
+  hosts/<host>/      NixOS host assembly (configuration, hardware, host-only home.nix),
+                     the personal-mac nix-darwin assembly, and the standalone work-mac output
   home/              flake.homeModules.*: per-user config (zsh, git, firefox, nvim, …);
-                     user.nix is the composition point listing every homeModules.* import
+                     user.nix is the shared Linux home composition
   files/             raw config files referenced by home modules
 ```
 
@@ -136,8 +137,9 @@ guessed.
 
 ### Adding a feature
 
-- **System feature** — drop `modules/features/foo.nix` exporting `flake.nixosModules.foo = { ... }: { ... };`, then add `self.nixosModules.foo` to the module list in `modules/hosts/desktop/configuration.nix`.
-- **Home module** — drop `modules/home/foo.nix` exporting `flake.homeModules.foo = { ... }: { ... };`, then add `self.homeModules.foo` to the imports list in `modules/home/user.nix`.
+- **System feature** — drop `modules/features/foo.nix` exporting `flake.nixosModules.foo = { ... }: { ... };`, then add `self.nixosModules.foo` to `modules/hosts/workstation.nix` (every GNOME machine: `desktop`, `macbook`) or to one host's `configuration.nix`.
+- **Home module** — drop `modules/home/foo.nix` exporting `flake.homeModules.foo = { ... }: { ... };`, then add `self.homeModules.foo` to the imports list in `modules/home/user.nix` (shared by `desktop` and `macbook`).
+- **Host-only setting** — anything tied to one machine's hardware or apps (binary builds, GPU decode, RAM-sized caches, the home `stateVersion`) goes in `modules/hosts/<host>/home.nix` or that host's `configuration.nix`/`hardware.nix`, never in a shared module.
 - **Common (system-wide, always-on)** — drop `modules/common/foo.nix` exporting `flake.nixosModules.foo`; wire it into the host the same way as a feature.
 - **`personal-mac` home config** — edit `modules/home/personalMac.nix`
   (`flake.homeModules.personalMac`) directly; packages go in `home.packages`
