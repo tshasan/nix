@@ -119,9 +119,10 @@ reason this host has no `system.autoUpgrade`.
 Follow the upstream
 [installation guide](https://github.com/nix-community/nixos-apple-silicon/blob/main/docs/uefi-standalone.md)
 to run the Asahi installer from macOS. Choose "UEFI environment only", name
-the OS `NixOS`, and boot the NixOS installer. Create the root partition in
-the free space as the guide describes, then label, encrypt, and mount
-everything. The config finds every filesystem by these labels, so there are
+the OS `NixOS`, and boot the installer ISO from the project's
+[releases](https://github.com/nix-community/nixos-apple-silicon/releases).
+Create the root partition in the free space as the guide describes, then
+label, encrypt, and mount everything. The config finds every filesystem by these labels, so there are
 no UUIDs to copy back into the repository:
 
 ```console
@@ -142,10 +143,12 @@ the same 8 GiB swapfile the installed system will adopt:
 mkdir -p /mnt/var/lib /mnt/tmp
 dd if=/dev/zero of=/mnt/var/lib/swapfile bs=1M count=8192 status=progress
 chmod 600 /mnt/var/lib/swapfile && mkswap /mnt/var/lib/swapfile && swapon /mnt/var/lib/swapfile
-git clone https://github.com/tshasan/nix.git /mnt/tmp/nix
-TMPDIR=/mnt/tmp nixos-install --no-root-passwd --flake /mnt/tmp/nix#macbook
+TMPDIR=/mnt/tmp nixos-install --no-root-passwd --flake github:tshasan/nix#macbook
 nixos-enter --root /mnt -c 'passwd taimur'
 ```
+
+The installer ISO has no `git`; `nixos-install` fetches the flake from
+GitHub itself.
 
 After reboot, clone the repository to `~/nix` and use `nh os switch`.
 
