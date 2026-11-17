@@ -28,7 +28,10 @@
       };
     in
     {
-      imports = [ self.homeModules.darwinBase ];
+      imports = [
+        self.homeModules.darwinBase
+        self.homeModules.yazi
+      ];
 
       # programs.git stays disabled: Homebrew owns git here, so the shared
       # settings are rendered into ~/.gitconfig directly.

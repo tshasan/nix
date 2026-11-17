@@ -143,7 +143,8 @@ guessed.
 - **Common (system-wide, always-on)** — drop `modules/common/foo.nix` exporting `flake.nixosModules.foo`; wire it into the host the same way as a feature.
 - **`personal-mac` home config** — edit `modules/home/personalMac.nix`
   (`flake.homeModules.personalMac`) directly; packages go in `home.packages`
-  the same as a NixOS home module.
+  the same as a NixOS home module. Dev tools shared with Linux come from
+  `homeModules.dev`; put Linux-only ones in its `isLinux` list.
 - **`work-mac` dotfile** — put its source under `modules/files/` and link it
   from `modules/home/workMac.nix`. Add the corresponding program to
   `Brewfile`, not `home.packages`.

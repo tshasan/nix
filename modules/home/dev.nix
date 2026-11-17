@@ -1,33 +1,45 @@
-{ inputs, ... }: {
+{ self, inputs, ... }:
+{
   flake.homeModules.dev =
-    { pkgs, config, ... }:
     {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
+    {
+      imports = [ self.homeModules.yazi ];
+
       home = {
-        packages = with pkgs; [
-          claude-code
-          inputs.pi.packages.${pkgs.stdenv.hostPlatform.system}.default
-          gh
-          jq
-          lazygit
-          yazi
-          zoxide
-          nodejs
-          bun
-          deno
-          pnpm
-          python3
-          uv
-          rustup
-          gcc
-          jdk
-          clang-tools
-          cmake
-          ninja
-          pkg-config
-          meson
-          gdb
-          bear
-        ];
+        packages =
+          with pkgs;
+          [
+            claude-code
+            inputs.pi.packages.${pkgs.stdenv.hostPlatform.system}.default
+            gh
+            jq
+            lazygit
+            yazi
+            zoxide
+            nodejs
+            bun
+            deno
+            pnpm
+            python3
+            uv
+            rustup
+            cmake
+            ninja
+            pkg-config
+          ]
+          ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+            gcc
+            jdk
+            clang-tools
+            meson
+            gdb
+            bear
+          ];
 
         sessionVariables = {
           RUSTUP_HOME = "${config.home.homeDirectory}/.rustup";
@@ -35,13 +47,6 @@
         };
 
         sessionPath = [ "${config.home.homeDirectory}/.cargo/bin" ];
-      };
-
-      xdg.configFile = {
-        "yazi/yazi.toml".source = ../files/shared/yazi/yazi.toml;
-        "yazi/init.lua".source = ../files/shared/yazi/init.lua;
-        "yazi/keymap.toml".source = ../files/shared/yazi/keymap.toml;
-        "yazi/plugins/git.yazi".source = pkgs.yaziPlugins.git;
       };
 
       programs = {

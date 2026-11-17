@@ -1,4 +1,4 @@
-{ self, inputs, ... }:
+{ self, ... }:
 {
   flake.homeModules.personalMac =
     {
@@ -10,6 +10,7 @@
       imports = [
         self.homeModules.darwinBase
         self.homeModules.zsh
+        self.homeModules.dev
       ];
 
       home = {
@@ -26,60 +27,18 @@
           flac
           ripgrep
           tree-sitter
-          claude-code
           codex
-          inputs.pi.packages.${pkgs.stdenv.hostPlatform.system}.default
-          gh
           jujutsu
-          jq
-          lazygit
           btop
           fastfetch
           eza
-          yazi
-          zoxide
-          bun
-          deno
-          pnpm
-          nodejs
-          python3
-          uv
-          rustup
-          cmake
-          ninja
-          pkg-config
         ];
 
-        sessionVariables = {
-          RUSTUP_HOME = "${config.home.homeDirectory}/.rustup";
-          CARGO_HOME = "${config.home.homeDirectory}/.cargo";
-          NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
-        };
-
-        sessionPath = [
-          "${config.home.homeDirectory}/.cargo/bin"
-          "${config.home.homeDirectory}/.npm-global/bin"
-        ];
+        sessionVariables.NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
+        sessionPath = [ "${config.home.homeDirectory}/.npm-global/bin" ];
       };
 
       programs = {
-        fzf.enable = true;
-        bat.enable = true;
-
-        direnv = {
-          enable = true;
-          nix-direnv.enable = true;
-        };
-
-        nh = {
-          enable = true;
-          flake = "${config.home.homeDirectory}/nix";
-          clean = {
-            enable = true;
-            extraArgs = "--keep-since 7d --keep 5";
-          };
-        };
-
         git = {
           enable = true;
           lfs.enable = true;
