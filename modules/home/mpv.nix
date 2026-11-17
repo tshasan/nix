@@ -14,7 +14,6 @@ _: {
         config = {
           vo = "gpu-next";
           gpu-api = "vulkan";
-          hwdec = "nvdec";
 
           # Disable the built-in OSC since uosc replaces it
           osc = "no";

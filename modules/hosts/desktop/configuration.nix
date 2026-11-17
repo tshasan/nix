@@ -39,7 +39,10 @@
         networkmanager.enable = true;
       };
 
-      home-manager.users.${self.lib.user.username}.imports = [ self.homeModules.user ];
+      home-manager.users.${self.lib.user.username}.imports = [
+        self.homeModules.user
+        self.homeModules.desktopHome
+      ];
 
       system.stateVersion = "25.11";
     };

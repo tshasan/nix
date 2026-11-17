@@ -35,23 +35,17 @@
         ];
       };
 
-      # The shared modules are tuned for the x86_64 NVIDIA desktop with
-      # 32 GB of RAM, and Thunderbird's binary build is x86_64-only.
+      # Thunderbird and mpv use the shared defaults: the source-built
+      # Thunderbird and software decoding with a safe hardware fallback.
       # Firefox is the official Mozilla tarball in ~/.local/opt/firefox so its
       # own updater ships releases the day they land; Home Manager still owns
       # the profile (settings and extensions).
       programs = {
         firefox = {
-          package = lib.mkForce null;
-          profiles.default.settings = {
-            "app.update.auto" = lib.mkForce true;
-            "browser.cache.memory.capacity" = lib.mkForce (-1);
-            "image.cache.size" = lib.mkForce 5242880;
-            "browser.tabs.unloadOnLowMemory" = true;
-          };
+          package = null;
+          profiles.default.settings."browser.tabs.unloadOnLowMemory" = true;
         };
-        thunderbird.package = lib.mkForce pkgs.thunderbird;
-        mpv.config.hwdec = lib.mkForce "auto-safe";
+        mpv.config.hwdec = "auto-safe";
 
         home-manager.enable = true;
       };

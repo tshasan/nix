@@ -8,7 +8,6 @@
     {
       programs.firefox = {
         enable = true;
-        package = pkgs.firefox-bin;
         # Pin the pre-25.11 default: the live profile lives here, and letting
         # the new ~/.config/mozilla default take over would orphan it.
         configPath = ".mozilla/firefox";
@@ -62,17 +61,6 @@
             "signon.autofillForms" = false;
             "signon.firefoxRelay.feature" = "disabled";
 
-            # Hardware video decode (NVIDIA-VAAPI is configured at system level).
-            # GPU/DMABuf paths are enabled but not force-enabled, so Firefox can
-            # fall back to software instead of crashing when the NVIDIA path fails.
-            "media.ffmpeg.vaapi.enabled" = true;
-            "media.rdd-ffmpeg.enabled" = true;
-            "gfx.webrender.all" = true;
-            "gfx.canvas.accelerated" = true;
-            "gfx.webrender.compositor" = false;
-            "gfx.webrender.compositor.force-enabled" = false;
-            "widget.dmabuf.force-enabled" = false;
-
             # DRM (Netflix, Spotify web)
             "media.eme.enabled" = true;
             "media.gmp-widevinecdm.enabled" = true;
@@ -108,18 +96,6 @@
             # Perf — background network noise
             "network.connectivity-service.enabled" = false;
             "network.captive-portal-service.enabled" = false;
-            "app.update.auto" = false;
-            "app.update.background.scheduling.enabled" = false;
-
-            # Perf — HW decode (explicit; nix-owned NVIDIA-VAAPI stack)
-            "media.av1.enabled" = true;
-            "media.rdd-process.enabled" = true;
-            "media.hardwaremediakeys.enabled" = true;
-
-            # 180 Hz feel
-            "general.smoothScroll.msdPhysics.enabled" = true;
-            "apz.frame_delay.enabled" = false;
-            "gfx.webrender.precache-shaders" = true;
 
             # HTTPS by default
             "dom.security.https_only_mode" = true;
@@ -140,10 +116,6 @@
             # Bitwarden owns secrets — silence the rest of the password/autofill UI
             "signon.management.page.breach-alerts.enabled" = false;
             "dom.forms.autocomplete.formautofill" = true;
-
-            # Cache: 1 GB memory, 512 MB image (32 GB RAM system)
-            "browser.cache.memory.capacity" = 1048576; # KB
-            "image.cache.size" = 536870912; # bytes
 
             # Session snapshot every 60s instead of 15s — less disk wear
             "browser.sessionstore.interval" = 60000;
