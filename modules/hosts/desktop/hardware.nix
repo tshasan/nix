@@ -27,7 +27,6 @@ _: {
         blacklistedKernelModules = [ "amdgpu" ];
         extraModulePackages = [ ];
         kernelParams = [
-          "amd_pstate=active"
           "nvme_core.default_ps_max_latency_us=0"
         ];
         kernel.sysctl = {
