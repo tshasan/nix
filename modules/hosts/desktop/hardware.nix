@@ -99,6 +99,20 @@ _: {
           MOZ_DISABLE_RDD_SANDBOX = "1";
         };
         systemPackages = [ pkgs.nvtopPackages.nvidia ];
+        # Unconnected NCT6799 thermistor inputs and PCH registers that read
+        # noise (AUXTIN5 floats near 110 °C), plus the unwired intrusion switch.
+        etc."sensors.d/desktop.conf".text = ''
+          chip "nct6799-isa-*"
+            label temp7 "CPU (SB-TSI)"
+            ignore temp3
+            ignore temp6
+            ignore temp9
+            ignore temp10
+            ignore temp11
+            ignore temp12
+            ignore intrusion0
+            ignore intrusion1
+        '';
       };
 
       fileSystems = {
