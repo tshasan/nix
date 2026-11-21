@@ -34,20 +34,6 @@
               ];
             };
 
-            # Home Manager's nh clean only covers user profiles; system
-            # generations from the daily auto-upgrade need a root GC.
-            gc = {
-              automatic = true;
-              interval = [
-                {
-                  Weekday = 0;
-                  Hour = 4;
-                  Minute = 0;
-                }
-              ];
-              options = "--delete-older-than 14d";
-            };
-
             optimise.automatic = true;
           };
 
@@ -111,7 +97,28 @@
             stateVersion = 5;
           };
 
-          programs.zsh.enable = true;
+          programs = {
+            zsh.enable = true;
+
+            # Home Manager's nh clean only covers user profiles; system
+            # generations from the daily auto-upgrade need a root GC. Mirrors
+            # NixOS: --keep 5 always leaves rollback targets, unlike
+            # --delete-older-than after a long time offline.
+            nh = {
+              enable = true;
+              clean = {
+                enable = true;
+                interval = [
+                  {
+                    Weekday = 0;
+                    Hour = 4;
+                    Minute = 0;
+                  }
+                ];
+                extraArgs = "--keep-since 14d --keep 5";
+              };
+            };
+          };
 
           homebrew = {
             enable = true;
