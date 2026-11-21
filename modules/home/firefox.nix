@@ -143,7 +143,8 @@
 
             # Bitwarden owns secrets — silence the rest of the password/autofill UI
             "signon.management.page.breach-alerts.enabled" = false;
-            "dom.forms.autocomplete.formautofill" = true;
+            "extensions.formautofill.addresses.enabled" = false;
+            "extensions.formautofill.creditCards.enabled" = false;
 
             # Session snapshot every 60s instead of 15s — less disk wear
             "browser.sessionstore.interval" = 60000;
