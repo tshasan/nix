@@ -8,7 +8,10 @@
       ...
     }:
     {
-      imports = [ self.homeModules.yazi ];
+      imports = [
+        self.homeModules.yazi
+        inputs.nix-index-database.homeModules.nix-index
+      ];
 
       home = {
         packages =
@@ -57,6 +60,11 @@
           enable = true;
           nix-direnv.enable = true;
         };
+
+        # `, foo` runs any nixpkgs program without installing it, and unknown
+        # commands suggest the package that provides them.
+        nix-index.enable = true;
+        nix-index-database.comma.enable = true;
 
         nh = {
           enable = true;

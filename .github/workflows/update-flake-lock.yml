@@ -25,6 +25,7 @@ jobs:
           - chaotic
           - firefox-addons
           - pi
+          - nix-index-database
           - treefmt-nix
           - git-hooks-nix
     steps:
