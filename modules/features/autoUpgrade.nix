@@ -13,6 +13,7 @@
       system.autoUpgrade = {
         enable = true;
         flake = self.lib.user.flakeUrl;
+        operation = "boot";
         dates = "daily";
         randomizedDelaySec = "45min";
         allowReboot = false;
