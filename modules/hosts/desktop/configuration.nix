@@ -33,6 +33,9 @@
         networkmanager.enable = true;
       };
 
+      programs.librepods.enable = true;
+      users.users.${self.lib.user.username}.extraGroups = [ "librepods" ];
+
       home-manager.users.${self.lib.user.username}.imports = [
         self.homeModules.user
         self.homeModules.desktopHome
