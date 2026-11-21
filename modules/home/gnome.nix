@@ -9,6 +9,7 @@ _: {
         "org/gnome/settings-daemon/plugins/media-keys".custom-keybindings = [
           "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
           "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/"
+          "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
         ];
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
           name = "Terminal";
@@ -20,6 +21,16 @@ _: {
           command = "firefox";
           binding = "<Super>b";
         };
+        "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = {
+          name = "Launcher";
+          command = "vicinae toggle";
+          binding = "<Super>space";
+        };
+
+        "org/gnome/desktop/wm/keybindings" = {
+          switch-input-source = [ ];
+          switch-input-source-backward = [ ];
+        };
 
         "org/cinnamon/desktop/default-applications/terminal" = {
           exec = "kitty";
@@ -27,8 +38,16 @@ _: {
         };
       };
 
-      programs.gnome-shell.extensions = [
-        { package = pkgs.gnomeExtensions.appindicator; }
-      ];
+      programs = {
+        gnome-shell.extensions = [
+          { package = pkgs.gnomeExtensions.appindicator; }
+          { package = pkgs.gnomeExtensions.vicinae; }
+        ];
+
+        vicinae = {
+          enable = true;
+          systemd.enable = true;
+        };
+      };
     };
 }
