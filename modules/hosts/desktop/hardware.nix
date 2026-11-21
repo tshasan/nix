@@ -92,6 +92,7 @@ _: {
         "/" = {
           device = "/dev/disk/by-uuid/822b0651-38e5-4055-ac85-17804e3f086b";
           fsType = "ext4";
+          options = [ "noatime" ];
         };
         "/boot" = {
           device = "/dev/disk/by-uuid/6A15-FCBE";
