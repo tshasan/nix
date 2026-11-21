@@ -68,9 +68,11 @@ _: {
         firefox = {
           profiles."default".settings = {
             # Hardware video decode (NVIDIA-VAAPI is configured at system level).
-            # GPU/DMABuf paths are enabled but not force-enabled, so Firefox can
-            # fall back to software instead of crashing when the NVIDIA path fails.
-            "media.ffmpeg.vaapi.enabled" = true;
+            # Decode is force-enabled past the NVIDIA blocklist, and a failing
+            # decoder still falls back to software. The compositor and DMABuf
+            # paths are not forced, so Firefox can fall back instead of crashing
+            # when the NVIDIA path fails.
+            "media.hardware-video-decoding.force-enabled" = true;
             "media.rdd-ffmpeg.enabled" = true;
             "gfx.webrender.all" = true;
             "gfx.canvas.accelerated" = true;
