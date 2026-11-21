@@ -35,6 +35,7 @@
       };
 
       programs.librepods.enable = true;
+      programs.coolercontrol.enable = true;
       users.users.${self.lib.user.username}.extraGroups = [ "librepods" ];
 
       home-manager.users.${self.lib.user.username}.imports = [
