@@ -110,7 +110,10 @@
             ];
             ProcessType = "Background";
             LowPriorityIO = true;
-            EnvironmentVariables.PATH = "/opt/homebrew/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+            EnvironmentVariables = {
+              PATH = "/opt/homebrew/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+              HOME_MANAGER_BACKUP_OVERWRITE = "1";
+            };
             StandardOutPath = "${config.home.homeDirectory}/Library/Logs/home-manager-auto-upgrade.log";
             StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/home-manager-auto-upgrade.log";
           };

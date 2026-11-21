@@ -189,6 +189,7 @@
             useGlobalPkgs = true;
             useUserPackages = true;
             backupFileExtension = "hm-backup";
+            overwriteBackup = true;
             users.${self.lib.user.darwinUsername}.imports = [ self.homeModules.personalMac ];
           };
         }
