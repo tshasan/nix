@@ -36,7 +36,7 @@ _: {
           "vm.watermark_scale_factor" = 125;
           "vm.page-cluster" = 0;
         };
-        tmp.useTmpfs = true;
+        tmp.cleanOnBoot = true;
       };
 
       services = {
