@@ -36,6 +36,8 @@ _: {
         ];
       };
 
+      services.easyeffects.enable = true;
+
       programs = {
         firefox = {
           profiles."default".settings = {
