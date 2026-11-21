@@ -30,6 +30,7 @@
           google-chrome
           eza
           gnome-disk-utility
+          dconf2nix
         ];
       };
 
