@@ -13,7 +13,17 @@
 
       # The upgrade runs as root, so post the failure into the user's session.
       systemd.services = {
-        nixos-upgrade.onFailure = [ "nixos-upgrade-failed.service" ];
+        # Retry transient failures (no network yet at boot) instead of
+        # waiting a day; notify only once the retries are used up.
+        nixos-upgrade = {
+          onFailure = [ "nixos-upgrade-failed.service" ];
+          startLimitBurst = 3;
+          startLimitIntervalSec = 3 * 60 * 60;
+          serviceConfig = {
+            Restart = "on-failure";
+            RestartSec = "30min";
+          };
+        };
         nixos-upgrade-failed = {
           serviceConfig.Type = "oneshot";
           script = ''
