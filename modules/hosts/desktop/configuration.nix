@@ -14,7 +14,6 @@
         self.nixosModules.desktopServices
         self.nixosModules.gaming
         self.nixosModules.autoUpgrade
-        self.nixosModules.backup
       ];
 
       boot.loader = {
