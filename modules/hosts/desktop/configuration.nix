@@ -23,6 +23,7 @@
           configurationLimit = 5;
           # Otherwise anyone at the boot menu can append init=/bin/sh.
           editor = false;
+          edk2-uefi-shell.enable = true;
         };
         efi.canTouchEfiVariables = true;
         timeout = 1;
