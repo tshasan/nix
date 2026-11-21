@@ -11,6 +11,8 @@ _: {
           games.enable = false;
           localsearch.enable = false;
         };
+
+        avahi.nssmdns4 = true;
       };
 
       xdg.portal.config.gnome = {
