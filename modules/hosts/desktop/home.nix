@@ -40,9 +40,14 @@ _: {
 
       services.easyeffects = {
         enable = true;
-        extraPresets."HiFiMan Edition XS" = builtins.fromJSON (
-          builtins.readFile ../../files/easyeffects/hifiman-edition-xs.json
-        );
+        extraPresets = {
+          "HiFiMan Edition XS" = builtins.fromJSON (
+            builtins.readFile ../../files/easyeffects/hifiman-edition-xs.json
+          );
+          "BlackShark V3 Mic" = builtins.fromJSON (
+            builtins.readFile ../../files/easyeffects/blackshark-mic.json
+          );
+        };
       };
 
       xdg.dataFile."easyeffects/autoload/output/alsa_output.usb-Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_DWH51640D162FN3A6-00.analog-stereo:Headphones.json".text =
@@ -51,6 +56,14 @@ _: {
           device-description = "USB-C to 3.5mm Headphone Jack Adapter Analog Stereo";
           device-profile = "Headphones";
           preset-name = "HiFiMan Edition XS";
+        };
+
+      xdg.dataFile."easyeffects/autoload/input/alsa_input.usb-Razer_Inc_BlackShark_V3_Pro_0000000000000000-00.mono-fallback:Microphone.json".text =
+        builtins.toJSON {
+          device = "alsa_input.usb-Razer_Inc_BlackShark_V3_Pro_0000000000000000-00.mono-fallback";
+          device-description = "BlackShark V3 Pro Mono";
+          device-profile = "Microphone";
+          preset-name = "BlackShark V3 Mic";
         };
 
       programs = {

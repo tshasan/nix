@@ -1,0 +1,50 @@
+{
+  "input": {
+    "blocklist": [],
+    "plugins_order": [
+      "rnnoise#0",
+      "gate#0"
+    ],
+    "rnnoise#0": {
+      "bypass": false,
+      "input-gain": 0.0,
+      "output-gain": 0.0,
+      "enable-vad": false,
+      "vad-thres": 50.0,
+      "wet": 0.0,
+      "release": 20.0,
+      "use-standard-model": true,
+      "model-name": ""
+    },
+    "gate#0": {
+      "bypass": false,
+      "input-gain": 0.0,
+      "output-gain": 0.0,
+      "dry": -80.01,
+      "wet": 0.0,
+      "attack": 10.0,
+      "release": 150.0,
+      "curve-threshold": -45.0,
+      "curve-zone": -6.0,
+      "hysteresis": false,
+      "hysteresis-threshold": -12.0,
+      "hysteresis-zone": -6.0,
+      "reduction": -24.0,
+      "makeup": 0.0,
+      "stereo-split": false,
+      "hpf-mode": "Off",
+      "hpf-frequency": 10.0,
+      "lpf-mode": "Off",
+      "lpf-frequency": 20000.0,
+      "sidechain": {
+        "type": "Internal",
+        "mode": "RMS",
+        "source": "Middle",
+        "stereo-split-source": "Left/Right",
+        "preamp": 0.0,
+        "reactivity": 10.0,
+        "lookahead": 0.0
+      }
+    }
+  }
+}
