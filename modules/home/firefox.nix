@@ -121,10 +121,6 @@
             "browser.tabs.firefox-view-next" = false;
             "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
 
-            # Perf — background network noise
-            "network.connectivity-service.enabled" = false;
-            "network.captive-portal-service.enabled" = false;
-
             # HTTPS by default
             "dom.security.https_only_mode" = true;
             "dom.security.https_only_mode_ever_enabled" = true;

@@ -90,6 +90,10 @@ _: {
             "apz.frame_delay.enabled" = false;
             "gfx.webrender.precache-shaders" = true;
 
+            # Perf — background network noise (wired desktop, no captive portals)
+            "network.connectivity-service.enabled" = false;
+            "network.captive-portal-service.enabled" = false;
+
             # Cache: 1 GB memory, 512 MB image (32 GB RAM system)
             "browser.cache.memory.capacity" = 1048576; # KB
             "image.cache.size" = 536870912; # bytes
