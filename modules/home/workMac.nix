@@ -85,6 +85,12 @@
               # Keep store paths out of this command: changing the plist during
               # a scheduled switch would reload the agent and kill its own run.
               ''
+                if ! /opt/homebrew/bin/git -C "$HOME/nix" pull --ff-only; then
+                  /opt/homebrew/bin/terminal-notifier \
+                    -title 'Home Manager pull failed' \
+                    -message 'Check ~/Library/Logs/home-manager-auto-upgrade.log' || true
+                  exit 1
+                fi
                 ${lib.escapeShellArgs [
                   "${config.home.profileDirectory}/bin/home-manager"
                   "switch"
