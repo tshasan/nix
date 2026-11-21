@@ -39,10 +39,13 @@ _: {
       };
 
       programs = {
-        gnome-shell.extensions = [
-          { package = pkgs.gnomeExtensions.appindicator; }
-          { package = pkgs.gnomeExtensions.vicinae; }
-        ];
+        gnome-shell = {
+          enable = true;
+          extensions = [
+            { package = pkgs.gnomeExtensions.appindicator; }
+            { package = pkgs.gnomeExtensions.vicinae; }
+          ];
+        };
 
         vicinae = {
           enable = true;
