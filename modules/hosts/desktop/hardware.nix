@@ -24,7 +24,10 @@ _: {
           ];
           kernelModules = [ ];
         };
-        kernelModules = [ "kvm-amd" ];
+        kernelModules = [
+          "kvm-amd"
+          "nct6775"
+        ];
         blacklistedKernelModules = [ "amdgpu" ];
         extraModulePackages = [ ];
         # Disable NVMe APST: Samsung 990 PRO firmware 4B2QJXD7 can drop off the
