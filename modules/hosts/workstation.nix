@@ -14,6 +14,7 @@
       self.nixosModules.nemo
       self.nixosModules.bluetooth
       self.nixosModules.gnome
+      self.nixosModules.nixLd
     ];
   };
 }
