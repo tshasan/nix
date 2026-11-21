@@ -17,6 +17,7 @@
         treefmt.enable = true;
         deadnix.enable = true;
         statix.enable = true;
+        actionlint.enable = true;
         commitizen.enable = true;
         gitleaks = {
           enable = true;

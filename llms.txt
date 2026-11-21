@@ -59,6 +59,12 @@ The `personal-mac` activation script strips group/world write from
 `/Library/Audio/Plug-Ins`, and `system.defaults` disables iZotope analytics and
 update checks. Do not add plug-in files to this repository.
 
+## Continuous integration
+
+`check.yml` evaluates all four host outputs and runs `treefmt`/`pre-commit`
+on every push and pull request. `update-flake-lock.yml` opens a daily
+`flake.lock` update PR and auto-merges it once `check` passes. Branch
+protection on `main` requires the `check` status check.
 
 ## Commands
 

@@ -31,10 +31,10 @@ switching, migration, or parity scripts.
   `darwin-rebuild` directly.
 - `home-manager switch --flake ~/nix#work-mac` — apply macOS dotfiles after initial activation.
 - `brew bundle --file ~/nix/Brewfile` — install declared macOS packages and applications.
-- `nix flake check` — runs `treefmt` + `pre-commit` checks.
+- `nix flake check` — runs `treefmt` + `pre-commit` checks; mirrors CI.
 - `nix build .#checks.x86_64-linux.treefmt` / `.#checks.x86_64-linux.pre-commit` — run one check in isolation.
 - `nix fmt` — format all Nix files (nixfmt via treefmt-nix).
-- `nix flake update` — refresh `flake.lock`.
+- `nix flake update` — refresh `flake.lock` (also updated daily by the `update-flake-lock` workflow, auto-merged).
 - `direnv allow` — `.envrc` runs `use flake` and installs pre-commit hooks via the dev shell.
 
 ## Architecture
@@ -175,7 +175,7 @@ guessed.
   sample/snippet output. The committed `.gitleaks.toml` documents the mechanism
   with placeholder patterns; real blocked patterns live in the untracked
   `.gitleaks.local.toml`. If unsure, leave it out.
-- **Keep symbols statically resolvable.** No `with pkgs;` / `with lib;` (or similar dynamic-scope tricks) at module top-level or around `let` / option bodies — use explicit `pkgs.foo` / `lib.foo` references. The one exception is nixpkgs-style `with pkgs; [ ... ]` (or `with pkgs; { ... }`) **immediately surrounding a list/attrset literal of package names** — the `with` scope dies at the closing bracket, statix accepts it, and the rest of nixpkgs writes package lists this way. Anywhere else, spell it out. When a custom option is genuinely unavoidable (see above), it must use `lib.mkOption` with an explicit `type =` (a concrete `lib.types.*`); no untyped options, no `freeformType` escape hatches. `nix flake check` is the source of truth — don't silence its output to make it pass.
+- **Keep symbols statically resolvable.** No `with pkgs;` / `with lib;` (or similar dynamic-scope tricks) at module top-level or around `let` / option bodies — use explicit `pkgs.foo` / `lib.foo` references. The one exception is nixpkgs-style `with pkgs; [ ... ]` (or `with pkgs; { ... }`) **immediately surrounding a list/attrset literal of package names** — the `with` scope dies at the closing bracket, statix accepts it, and the rest of nixpkgs writes package lists this way. Anywhere else, spell it out. When a custom option is genuinely unavoidable (see above), it must use `lib.mkOption` with an explicit `type =` (a concrete `lib.types.*`); no untyped options, no `freeformType` escape hatches. `nix flake check` is the source of truth — don't silence its output to make CI green.
 - **`nixfmt` is the only Nix formatter.** Don't reach for `nixpkgs-fmt`, `alejandra`, or hand-formatting. Run `nix fmt` (treefmt-nix wraps `nixfmt`).
 
 ## MCP servers
@@ -186,7 +186,7 @@ Wired up:
 
 - **nixos** (`uvx mcp-nixos`) — searches nixpkgs packages, NixOS options, and home-manager options. Reach for this first when adding/changing a package or option instead of guessing attribute paths or option names; it's the cheapest way to confirm an option exists, its type, and its default before editing a module.
 - **context7** (`npx -y @upstash/context7-mcp`) — fetches up-to-date docs for libraries. Use when you need the current behavior of a flake input or upstream project (e.g. home-manager or niri) and want to avoid stale knowledge.
-- **github** (HTTPS, `https://api.githubcopilot.com/mcp/`) — PR/issue access. Use for anything the local `gh` CLI doesn't already cover cleanly (e.g. cross-referencing PR review threads).
+- **github** (HTTPS, `https://api.githubcopilot.com/mcp/`) — PR/issue/Actions access. Use for anything the local `gh` CLI doesn't already cover cleanly (e.g. cross-referencing PR review threads, checking workflow run details for `update-flake-lock`).
 
 If a server shows disconnected in `/mcp`, authenticate it there (github uses OAuth on first use).
 
