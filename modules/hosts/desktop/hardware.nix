@@ -52,6 +52,8 @@ _: {
       };
 
       hardware = {
+        block.scheduler."nvme[0-9]*" = "none";
+
         nvidia = {
           modesetting.enable = true;
           open = true;
