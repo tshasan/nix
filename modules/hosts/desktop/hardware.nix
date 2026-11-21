@@ -86,6 +86,7 @@ _: {
 
         enableRedistributableFirmware = true;
         cpu.amd.updateMicrocode = config.hardware.enableRedistributableFirmware;
+        cpu.amd.ryzen-smu.enable = true;
       };
 
       environment = {
