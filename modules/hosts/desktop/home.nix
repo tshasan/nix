@@ -8,18 +8,6 @@ _: {
         stateVersion = "25.11";
 
         packages = with pkgs; [
-          (vesktop.overrideAttrs (old: {
-            postInstall = (old.postInstall or "") + ''
-              for d in $out/share/icons/hicolor/*/apps; do
-                cp -f ${discord}/share/icons/hicolor/256x256/apps/discord.png "$d/vesktop.png"
-              done
-            '';
-            postFixup = (old.postFixup or "") + ''
-              substituteInPlace $out/share/applications/vesktop.desktop \
-                --replace-fail "Name=Vesktop" "Name=Discord"
-            '';
-          }))
-
           (prismlauncher.override {
             additionalPrograms = [ ffmpeg ];
 
@@ -109,6 +97,65 @@ _: {
         thunderbird.package = pkgs.thunderbird-bin;
 
         mpv.config.hwdec = "nvdec";
+
+        vesktop = {
+          enable = true;
+          package = pkgs.vesktop.overrideAttrs (old: {
+            postInstall = (old.postInstall or "") + ''
+              for d in $out/share/icons/hicolor/*/apps; do
+                cp -f ${pkgs.discord}/share/icons/hicolor/256x256/apps/discord.png "$d/vesktop.png"
+              done
+            '';
+            postFixup = (old.postFixup or "") + ''
+              substituteInPlace $out/share/applications/vesktop.desktop \
+                --replace-fail "Name=Vesktop" "Name=Discord"
+            '';
+          });
+
+          mutableSettings = true;
+          settings = {
+            discordBranch = "stable";
+            minimizeToTray = false;
+            arRPC = false;
+            splashColor = "rgb(220, 220, 223)";
+            splashBackground = "rgb(0, 0, 0)";
+            spellCheckLanguages = [
+              "en-US"
+              "en"
+            ];
+          };
+
+          vencord = {
+            # Vencord comes from nixpkgs, so it updates with flake.lock instead
+            # of going stale in ~/.config/vesktop/sessionData/vencordFiles.
+            useSystem = true;
+            mutableSettings = true;
+            settings = {
+              useQuickCss = true;
+              plugins = {
+                AlwaysTrust.enabled = true;
+                AnonymiseFileNames.enabled = true;
+                BiggerStreamPreview.enabled = true;
+                CallTimer.enabled = true;
+                CharacterCounter.enabled = true;
+                ClearURLs.enabled = true;
+                ConsoleJanitor.enabled = true;
+                CopyFileContents.enabled = true;
+                CopyUserURLs.enabled = true;
+                Dearrow.enabled = true;
+                FixImagesQuality.enabled = true;
+                FixSpotifyEmbeds.enabled = true;
+                FixYoutubeEmbeds.enabled = true;
+                FriendsSince.enabled = true;
+                iLoveSpam.enabled = true;
+                ImageFilename.enabled = true;
+                ReadAllNotificationsButton.enabled = true;
+                NoTrack.disableAnalytics = true;
+                Settings.settingsLocation = "aboveNitro";
+              };
+            };
+          };
+        };
       };
     };
 }
