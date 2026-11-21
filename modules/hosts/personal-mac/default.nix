@@ -162,8 +162,12 @@
                   }
                   nh=/nix/var/nix/profiles/system/sw/bin/nh
                   /bin/wait4path "$nh" || exit 1
-                  "$nh" darwin switch ${self.lib.user.flakeUrl}#personal-mac --refresh --no-nom --elevation-strategy /usr/bin/sudo --bypass-root-check
-                  result=$?
+                  for attempt in 1 2 3; do
+                    "$nh" darwin switch ${self.lib.user.flakeUrl}#personal-mac --refresh --no-nom --elevation-strategy /usr/bin/sudo --bypass-root-check
+                    result=$?
+                    [ "$result" -eq 0 ] || [ "$attempt" -eq 3 ] && break
+                    /bin/sleep 1800
+                  done
                   if [ "$result" -ne 0 ]; then
                     notify "nix-darwin auto-upgrade failed" "Check /var/log/nix-darwin-auto-upgrade.log"
                   fi

@@ -85,21 +85,31 @@
               # Keep store paths out of this command: changing the plist during
               # a scheduled switch would reload the agent and kill its own run.
               ''
-                if ! /opt/homebrew/bin/git -C "$HOME/nix" pull --ff-only; then
+                for attempt in 1 2 3; do
+                  /opt/homebrew/bin/git -C "$HOME/nix" pull --ff-only
+                  result=$?
+                  [ "$result" -eq 0 ] || [ "$attempt" -eq 3 ] && break
+                  /bin/sleep 1800
+                done
+                if [ "$result" -ne 0 ]; then
                   /opt/homebrew/bin/terminal-notifier \
                     -title 'Home Manager pull failed' \
                     -message 'Check ~/Library/Logs/home-manager-auto-upgrade.log' || true
-                  exit 1
+                  exit "$result"
                 fi
-                ${lib.escapeShellArgs [
-                  "${config.home.profileDirectory}/bin/home-manager"
-                  "switch"
-                  "--flake"
-                  "${config.home.homeDirectory}/nix#work-mac"
-                  "-b"
-                  "hm-backup"
-                ]}
-                result=$?
+                for attempt in 1 2 3; do
+                  ${lib.escapeShellArgs [
+                    "${config.home.profileDirectory}/bin/home-manager"
+                    "switch"
+                    "--flake"
+                    "${config.home.homeDirectory}/nix#work-mac"
+                    "-b"
+                    "hm-backup"
+                  ]}
+                  result=$?
+                  [ "$result" -eq 0 ] || [ "$attempt" -eq 3 ] && break
+                  /bin/sleep 1800
+                done
                 if [ "$result" -ne 0 ]; then
                   /opt/homebrew/bin/terminal-notifier \
                     -title 'Home Manager activation failed' \
