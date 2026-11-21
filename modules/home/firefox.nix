@@ -120,6 +120,8 @@
             "browser.tabs.firefox-view" = false;
             "browser.tabs.firefox-view-next" = false;
             "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
+            "browser.newtabpage.activity-stream.showSponsored" = false;
+            "browser.urlbar.suggest.quicksuggest.sponsored" = false;
 
             # HTTPS by default
             "dom.security.https_only_mode" = true;
