@@ -138,9 +138,6 @@
             "font.name.serif.x-western" = "Atkinson Hyperlegible";
             "font.name.monospace.x-western" = "AtkynsonMono Nerd Font Mono";
 
-            # Match dark system theme
-            "ui.systemUsesDarkTheme" = 1;
-
             # Bitwarden owns secrets — silence the rest of the password/autofill UI
             "signon.management.page.breach-alerts.enabled" = false;
             "extensions.formautofill.addresses.enabled" = false;
