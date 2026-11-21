@@ -2,6 +2,8 @@
 {
   flake.nixosModules.nix = _: {
     nix = {
+      channel.enable = false;
+
       gc = {
         automatic = true;
         dates = "weekly";
