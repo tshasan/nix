@@ -23,6 +23,7 @@ jobs:
           - home-manager
           - nix-darwin
           - chaotic
+          - nixos-apple-silicon
           - firefox-addons
           - pi
           - nix-index-database
