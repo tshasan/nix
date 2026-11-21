@@ -41,12 +41,30 @@ _: {
       services.easyeffects = {
         enable = true;
         extraPresets = {
+          Flat.output = {
+            blocklist = [ ];
+            plugins_order = [ ];
+          };
           "HiFiMan Edition XS" = builtins.fromJSON (
             builtins.readFile ../../files/easyeffects/hifiman-edition-xs.json
           );
-          "BlackShark V3 Mic" = builtins.fromJSON (
-            builtins.readFile ../../files/easyeffects/blackshark-mic.json
+          "HiFiMan Edition XS (Kuulokenurkka)" = builtins.fromJSON (
+            builtins.readFile ../../files/easyeffects/hifiman-edition-xs-kuulokenurkka.json
           );
+          "HiFiMan Edition XS (Super Review)" = builtins.fromJSON (
+            builtins.readFile ../../files/easyeffects/hifiman-edition-xs-super-review.json
+          );
+          "HiFiMan Edition XS (Rtings)" = builtins.fromJSON (
+            builtins.readFile ../../files/easyeffects/hifiman-edition-xs-rtings.json
+          );
+        };
+        # Outputs without an autoload file (BlackShark, HDMI) get Flat instead
+        # of keeping whatever preset was loaded last. The mic is left alone;
+        # Discord handles noise suppression.
+        settings.Window = {
+          processAllInputs = false;
+          outputAutoloadingUsesFallback = true;
+          outputAutoloadingFallbackPreset = "Flat";
         };
       };
 
@@ -56,14 +74,6 @@ _: {
           device-description = "USB-C to 3.5mm Headphone Jack Adapter Analog Stereo";
           device-profile = "Headphones";
           preset-name = "HiFiMan Edition XS";
-        };
-
-      xdg.dataFile."easyeffects/autoload/input/alsa_input.usb-Razer_Inc_BlackShark_V3_Pro_0000000000000000-00.mono-fallback:Microphone.json".text =
-        builtins.toJSON {
-          device = "alsa_input.usb-Razer_Inc_BlackShark_V3_Pro_0000000000000000-00.mono-fallback";
-          device-description = "BlackShark V3 Pro Mono";
-          device-profile = "Microphone";
-          preset-name = "BlackShark V3 Mic";
         };
 
       programs = {
