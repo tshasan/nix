@@ -2,6 +2,7 @@ _: {
   flake.nixosModules.desktopHardware =
     {
       config,
+      lib,
       pkgs,
       modulesPath,
       ...
@@ -49,6 +50,14 @@ _: {
         enable = true;
         algorithm = "zstd";
         memoryPercent = 25;
+      };
+
+      # A second boot entry per generation on the stock LTS kernel and the
+      # nixpkgs build of the same NVIDIA driver, so a bad CachyOS or NVIDIA
+      # build is one boot-menu pick away from working.
+      specialisation.lts.configuration = {
+        boot.kernelPackages = lib.mkForce pkgs.linuxPackages;
+        hardware.nvidia.package = lib.mkForce pkgs.linuxPackages.nvidiaPackages.latest;
       };
 
       hardware = {
