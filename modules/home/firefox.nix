@@ -110,7 +110,6 @@
             # Quit → reopen lands on about:home, never on a restore card.
             # Session file still written so Ctrl+Shift+T and crash recovery work.
             "browser.startup.couldRestoreSession.count" = 0;
-            "browser.sessionstore.resume_session_once" = false;
 
             # Perf — startup/RAM
             "accessibility.force_disabled" = 1;
@@ -121,10 +120,6 @@
             # HTTPS by default
             "dom.security.https_only_mode" = true;
             "dom.security.https_only_mode_ever_enabled" = true;
-
-            # Wayland
-            "widget.wayland.fractional-scale.enabled" = true;
-            "apz.allow_zooming" = true;
 
             # System font integration
             "font.name.sans-serif.x-western" = "Atkinson Hyperlegible";

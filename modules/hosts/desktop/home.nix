@@ -73,17 +73,11 @@ _: {
             # paths are not forced, so Firefox can fall back instead of crashing
             # when the NVIDIA path fails.
             "media.hardware-video-decoding.force-enabled" = true;
-            "media.rdd-ffmpeg.enabled" = true;
             "gfx.webrender.all" = true;
             "gfx.canvas.accelerated" = true;
             "gfx.webrender.compositor" = false;
             "gfx.webrender.compositor.force-enabled" = false;
             "widget.dmabuf.force-enabled" = false;
-
-            # Perf — HW decode (explicit; nix-owned NVIDIA-VAAPI stack)
-            "media.av1.enabled" = true;
-            "media.rdd-process.enabled" = true;
-            "media.hardwaremediakeys.enabled" = true;
 
             # 180 Hz feel
             "general.smoothScroll.msdPhysics.enabled" = true;
