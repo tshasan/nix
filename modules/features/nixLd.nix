@@ -1,7 +1,8 @@
 _: {
   # Runs the official Firefox and Tor Browser tarballs unpatched so their
   # built-in updaters apply signed updates the day they ship. The
-  # libraries mirror nixpkgs' tor-browser runtime path, which covers both.
+  # libraries mirror nixpkgs' tor-browser runtime path, plus the X11 ones
+  # libxul and the gfxtest GPU probe link directly.
   flake.nixosModules.nixLd =
     { pkgs, ... }:
     {
@@ -20,7 +21,13 @@ _: {
           gtk3
           libxcb
           libx11
+          libxcomposite
+          libxcursor
+          libxdamage
           libxext
+          libxfixes
+          libxi
+          libxrandr
           libxrender
           libxt
           libxtst
