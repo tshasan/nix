@@ -30,6 +30,14 @@
           };
           color.ui = "auto";
           credential.helper = "cache --timeout=86400";
+          "credential \"https://github.com\"".helper = [
+            ""
+            "!gh auth git-credential"
+          ];
+          "credential \"https://gist.github.com\"".helper = [
+            ""
+            "!gh auth git-credential"
+          ];
           sendemail = {
             smtpServer = "127.0.0.1";
             smtpServerPort = 1025;
