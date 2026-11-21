@@ -26,6 +26,8 @@ _: {
         kernelModules = [ "kvm-amd" ];
         blacklistedKernelModules = [ "amdgpu" ];
         extraModulePackages = [ ];
+        # Disable NVMe APST: Samsung 990 PRO firmware 4B2QJXD7 can drop off the
+        # bus or remount read-only when entering deep power states.
         kernelParams = [
           "nvme_core.default_ps_max_latency_us=0"
         ];
