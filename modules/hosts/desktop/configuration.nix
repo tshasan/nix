@@ -1,9 +1,10 @@
-{ self, ... }:
+{ self, inputs, ... }:
 {
   flake.nixosModules.desktopConfiguration =
-    { ... }:
+    { lib, pkgs, ... }:
     {
       imports = [
+        inputs.lanzaboote.nixosModules.lanzaboote
         self.nixosModules.desktopHardware
         self.nixosModules.cachyos
         self.nixosModules.workstation
@@ -17,16 +18,25 @@
       ];
 
       boot.loader = {
+        # Lanzaboote installs a signed systemd-boot and reads these settings.
         systemd-boot = {
-          enable = true;
+          enable = lib.mkForce false;
           configurationLimit = 5;
           # Otherwise anyone at the boot menu can append init=/bin/sh.
           editor = false;
-          edk2-uefi-shell.enable = true;
         };
         efi.canTouchEfiVariables = true;
         timeout = 1;
       };
+
+      boot.lanzaboote = {
+        enable = true;
+        pkiBundle = "/var/lib/sbctl";
+      };
+      environment.systemPackages = [
+        pkgs.sbctl
+        pkgs.efibootmgr
+      ];
 
       networking = {
         hostName = "desktop";
