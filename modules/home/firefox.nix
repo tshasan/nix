@@ -72,7 +72,6 @@
             "browser.discovery.enabled" = false;
             "browser.newtabpage.activity-stream.feeds.telemetry" = false;
             "browser.newtabpage.activity-stream.telemetry" = false;
-            "browser.ping-centre.telemetry" = false;
 
             # FxA Sync — bookmarks + history only
             "services.sync.engine.bookmarks" = true;
@@ -102,10 +101,8 @@
             "browser.urlbar.suggest.searches" = false;
             "browser.search.suggest.enabled" = false;
             "browser.contentblocking.category" = "strict";
-            "extensions.pocket.enabled" = false;
             "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
             "browser.newtabpage.activity-stream.feeds.section.highlights" = false;
-            "browser.newtabpage.activity-stream.feeds.snippets" = false;
 
             # Bookmarks toolbar always visible (default is newtab-only)
             "browser.toolbars.bookmarks.visibility" = "always";
@@ -117,8 +114,6 @@
 
             # Perf — startup/RAM
             "accessibility.force_disabled" = 1;
-            "browser.tabs.firefox-view" = false;
-            "browser.tabs.firefox-view-next" = false;
             "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
             "browser.newtabpage.activity-stream.showSponsored" = false;
             "browser.urlbar.suggest.quicksuggest.sponsored" = false;

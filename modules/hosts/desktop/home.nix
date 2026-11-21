@@ -87,7 +87,6 @@ _: {
 
             # 180 Hz feel
             "general.smoothScroll.msdPhysics.enabled" = true;
-            "apz.frame_delay.enabled" = false;
             "gfx.webrender.precache-shaders" = true;
 
             # Perf — background network noise (wired desktop, no captive portals)
