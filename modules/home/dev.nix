@@ -70,7 +70,7 @@
           enable = true;
           flake = "${config.home.homeDirectory}/nix";
           clean = {
-            enable = true;
+            enable = pkgs.stdenv.hostPlatform.isDarwin;
             extraArgs = "--keep-since 7d --keep 5";
           };
         };
