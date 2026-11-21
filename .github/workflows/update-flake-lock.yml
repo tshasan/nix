@@ -11,6 +11,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
+      issues: write
       pull-requests: write
     strategy:
       fail-fast: false
@@ -76,3 +77,16 @@ jobs:
 
           echo "Timed out waiting for PR #$PR_NUMBER to merge" >&2
           exit 1
+      - if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TITLE: "update-flake-lock failed: ${{ matrix.input }}"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          issue=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number,title --jq '.[] | select(.title == env.TITLE) | .number' | head -n 1)
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body "$RUN_URL"
+          else
+            gh issue create --title "$TITLE" --body "$RUN_URL"
+          fi
