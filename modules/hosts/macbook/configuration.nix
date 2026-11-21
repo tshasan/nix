@@ -12,6 +12,8 @@
         # The Asahi installer's ESP is small and every generation carries
         # its own full kernel and initrd.
         configurationLimit = 3;
+        # Otherwise anyone at the boot menu can append init=/bin/sh.
+        editor = false;
       };
       timeout = 1;
     };
