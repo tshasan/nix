@@ -129,6 +129,9 @@
           environment = {
             systemPackages = [ pkgs.nh ];
 
+            # Read at runtime by the auto-upgrade staleness check.
+            etc."nixpkgs-last-modified".text = toString inputs.nixpkgs.lastModified;
+
             etc."newsyslog.d/nix-darwin-auto-upgrade.conf".text = ''
               # logfilename                         mode count size(KB) when flags
               /var/log/nix-darwin-auto-upgrade.log  644  5     1024     *    NJ
@@ -145,14 +148,23 @@
                 # The system profile lives on the Nix volume, so wait4path still
                 # holds the boot-time run until /nix is mounted.
                 ''
+                  notify() {
+                    /bin/launchctl asuser "$(/usr/bin/id -u ${self.lib.user.darwinUsername})" \
+                      /usr/bin/sudo -u ${self.lib.user.darwinUsername} /usr/bin/osascript \
+                      -e "display notification \"$2\" with title \"$1\"" || true
+                  }
                   nh=/nix/var/nix/profiles/system/sw/bin/nh
                   /bin/wait4path "$nh" || exit 1
                   "$nh" darwin switch ${self.lib.user.flakeUrl}#personal-mac --refresh --no-nom --elevation-strategy /usr/bin/sudo --bypass-root-check
                   result=$?
                   if [ "$result" -ne 0 ]; then
-                    /bin/launchctl asuser "$(/usr/bin/id -u ${self.lib.user.darwinUsername})" \
-                      /usr/bin/sudo -u ${self.lib.user.darwinUsername} /usr/bin/osascript \
-                      -e 'display notification "Check /var/log/nix-darwin-auto-upgrade.log" with title "nix-darwin auto-upgrade failed"' || true
+                    notify "nix-darwin auto-upgrade failed" "Check /var/log/nix-darwin-auto-upgrade.log"
+                  fi
+                  # Catches the pipeline stalling while each switch still
+                  # succeeds, e.g. the flake-lock workflow not running.
+                  age=$(( ($(/bin/date +%s) - $(/bin/cat /etc/nixpkgs-last-modified)) / 86400 ))
+                  if [ "$age" -gt 7 ]; then
+                    notify "nix-darwin is out of date" "The running system's nixpkgs is $age days old"
                   fi
                   exit "$result"
                 ''
