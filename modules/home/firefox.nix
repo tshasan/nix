@@ -1,13 +1,38 @@
-{ inputs, ... }:
+{ self, inputs, ... }:
 {
   flake.homeModules.firefox =
-    { pkgs, ... }:
+    { lib, pkgs, ... }:
     let
+      inherit (self.lib.user) homeDirectory;
       addons = (pkgs.extend inputs.firefox-addons.overlays.default).firefox-addons;
+      firefox = "${homeDirectory}/.local/opt/firefox/firefox";
     in
     {
+      # Firefox is the official Mozilla tarball in ~/.local/opt/firefox so its
+      # own updater ships releases the day they land; Home Manager still owns
+      # the profile (settings and extensions).
+      xdg.desktopEntries.firefox = {
+        name = "Firefox";
+        genericName = "Web Browser";
+        exec = "${firefox} %u";
+        icon = "${homeDirectory}/.local/opt/firefox/browser/chrome/icons/default/default128.png";
+        categories = [
+          "Network"
+          "WebBrowser"
+        ];
+        mimeType = [
+          "text/html"
+          "x-scheme-handler/http"
+          "x-scheme-handler/https"
+        ];
+      };
+
+      dconf.settings."org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1".command =
+        lib.mkForce firefox;
+
       programs.firefox = {
         enable = true;
+        package = null;
         # Pin the pre-25.11 default: the live profile lives here, and letting
         # the new ~/.config/mozilla default take over would orphan it.
         configPath = ".mozilla/firefox";

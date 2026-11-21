@@ -38,13 +38,7 @@ _: {
 
       programs = {
         firefox = {
-          package = pkgs.firefox-bin;
-
           profiles."default".settings = {
-            # Nix owns updates of the binary package.
-            "app.update.auto" = false;
-            "app.update.background.scheduling.enabled" = false;
-
             # Hardware video decode (NVIDIA-VAAPI is configured at system level).
             # GPU/DMABuf paths are enabled but not force-enabled, so Firefox can
             # fall back to software instead of crashing when the NVIDIA path fails.
