@@ -5,7 +5,10 @@
     let
       inherit (self.lib.user) homeDirectory;
       addons = (pkgs.extend inputs.firefox-addons.overlays.default).firefox-addons;
-      firefox = "${homeDirectory}/.local/opt/firefox/firefox";
+      # The nixpkgs wrapper sets this too: without it Firefox wants a profile
+      # per install path, cannot record one in the read-only profiles.ini, and
+      # opens a fresh empty profile on every launch.
+      firefox = "env MOZ_LEGACY_PROFILES=1 ${homeDirectory}/.local/opt/firefox/firefox";
     in
     {
       # Firefox is the official Mozilla tarball in ~/.local/opt/firefox so its
