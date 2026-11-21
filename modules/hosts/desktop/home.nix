@@ -38,7 +38,20 @@ _: {
         ];
       };
 
-      services.easyeffects.enable = true;
+      services.easyeffects = {
+        enable = true;
+        extraPresets."HiFiMan Edition XS" = builtins.fromJSON (
+          builtins.readFile ../../files/easyeffects/hifiman-edition-xs.json
+        );
+      };
+
+      xdg.dataFile."easyeffects/autoload/output/alsa_output.usb-Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_DWH51640D162FN3A6-00.analog-stereo:Headphones.json".text =
+        builtins.toJSON {
+          device = "alsa_output.usb-Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_DWH51640D162FN3A6-00.analog-stereo";
+          device-description = "USB-C to 3.5mm Headphone Jack Adapter Analog Stereo";
+          device-profile = "Headphones";
+          preset-name = "HiFiMan Edition XS";
+        };
 
       programs = {
         firefox = {
