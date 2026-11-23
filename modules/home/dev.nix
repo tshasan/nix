@@ -44,11 +44,6 @@
             bear
           ];
 
-        sessionVariables = {
-          RUSTUP_HOME = "${config.home.homeDirectory}/.rustup";
-          CARGO_HOME = "${config.home.homeDirectory}/.cargo";
-        };
-
         sessionPath = [ "${config.home.homeDirectory}/.cargo/bin" ];
       };
 
