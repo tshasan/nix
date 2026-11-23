@@ -64,6 +64,28 @@ _: {
           preset-name = "HiFiMan Edition XS";
         };
 
+      # Shadows the package's vesktop.desktop instead of patching the package,
+      # which would change its hash and rebuild it locally on every update.
+      xdg.desktopEntries.vesktop = {
+        name = "Discord";
+        genericName = "Internet Messenger";
+        comment = "Alternative Discord client with Vencord built-in";
+        exec = "vesktop %U";
+        icon = "${pkgs.runCommand "discord.png" { } ''
+          cp ${pkgs.discord}/share/icons/hicolor/256x256/apps/discord.png $out
+        ''}";
+        categories = [
+          "Network"
+          "InstantMessaging"
+          "Chat"
+        ];
+        mimeType = [ "x-scheme-handler/discord" ];
+        settings = {
+          Keywords = "discord;vencord;electron;chat";
+          StartupWMClass = "Vesktop";
+        };
+      };
+
       programs = {
         firefox = {
           profiles."default".settings = {
@@ -99,18 +121,6 @@ _: {
 
         vesktop = {
           enable = true;
-          package = pkgs.vesktop.overrideAttrs (old: {
-            postInstall = (old.postInstall or "") + ''
-              for d in $out/share/icons/hicolor/*/apps; do
-                cp -f ${pkgs.discord}/share/icons/hicolor/256x256/apps/discord.png "$d/vesktop.png"
-              done
-            '';
-            postFixup = (old.postFixup or "") + ''
-              substituteInPlace $out/share/applications/vesktop.desktop \
-                --replace-fail "Name=Vesktop" "Name=Discord"
-            '';
-          });
-
           mutableSettings = true;
           settings = {
             discordBranch = "stable";
