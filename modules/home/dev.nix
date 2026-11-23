@@ -63,7 +63,7 @@
 
         nh = {
           enable = true;
-          flake = "${config.home.homeDirectory}/nix";
+          flake = "${config.home.homeDirectory}/${self.lib.user.flakeCheckout}";
         };
       };
     };

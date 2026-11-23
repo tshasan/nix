@@ -86,7 +86,7 @@
               # a scheduled switch would reload the agent and kill its own run.
               ''
                 for attempt in 1 2 3; do
-                  /opt/homebrew/bin/git -C "$HOME/nix" pull --ff-only
+                  /opt/homebrew/bin/git -C "$HOME/${self.lib.user.flakeCheckout}" pull --ff-only
                   result=$?
                   [ "$result" -eq 0 ] || [ "$attempt" -eq 3 ] && break
                   /bin/sleep 1800
@@ -102,7 +102,7 @@
                     "${config.home.profileDirectory}/bin/home-manager"
                     "switch"
                     "--flake"
-                    "${config.home.homeDirectory}/nix#work-mac"
+                    "${config.home.homeDirectory}/${self.lib.user.flakeCheckout}#work-mac"
                     "-b"
                     "hm-backup"
                   ]}
