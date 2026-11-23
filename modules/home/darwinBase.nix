@@ -54,7 +54,7 @@
         configFile = {
           "btop/btop.conf".source = ../files/macos/btop/btop.conf;
           "gh/config.yml".source =
-            config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/modules/files/macos/gh/config.yml";
+            config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/${self.lib.user.flakeCheckout}/modules/files/macos/gh/config.yml";
           "git/ignore".source = ../files/macos/git/ignore;
         };
       };

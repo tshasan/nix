@@ -44,11 +44,6 @@
             bear
           ];
 
-        sessionVariables = {
-          RUSTUP_HOME = "${config.home.homeDirectory}/.rustup";
-          CARGO_HOME = "${config.home.homeDirectory}/.cargo";
-        };
-
         sessionPath = [ "${config.home.homeDirectory}/.cargo/bin" ];
       };
 
@@ -68,11 +63,7 @@
 
         nh = {
           enable = true;
-          flake = "${config.home.homeDirectory}/nix";
-          clean = {
-            enable = pkgs.stdenv.hostPlatform.isDarwin;
-            extraArgs = "--keep-since 7d --keep 5";
-          };
+          flake = "${config.home.homeDirectory}/${self.lib.user.flakeCheckout}";
         };
       };
     };

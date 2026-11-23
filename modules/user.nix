@@ -8,6 +8,8 @@ _: {
     fullName = "Taimur Hasan";
     email = "me@tshasan.com";
     flakeUrl = "github:tshasan/nix";
+    # The local clone, relative to the home directory on every platform.
+    flakeCheckout = "nix";
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPtJSlUuiWm5fUaQNCZUuRhoqQ1O9z6qGTj+KPQqx9OM"
     ];

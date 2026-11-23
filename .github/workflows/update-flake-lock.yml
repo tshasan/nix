@@ -50,33 +50,45 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.FLAKE_LOCK_TOKEN }}
           PR_NUMBER: ${{ steps.update.outputs.pull-request-number }}
+        # The PR's own state is the only thing that ends this step, so a
+        # transient API error can't let the next input branch off a main
+        # that this PR has yet to land on.
         run: |
-          gh pr merge --auto --squash "$PR_NUMBER"
-
-          for _ in {1..30}; do
-            checks=$(gh pr view "$PR_NUMBER" --json statusCheckRollup --jq '.statusCheckRollup | length')
-            [ "$checks" -gt 0 ] && break
-            sleep 10
-          done
-
-          gh pr checks --watch --fail-fast --interval 15 "$PR_NUMBER"
-
-          for _ in {1..60}; do
-            state=$(gh pr view "$PR_NUMBER" --json state --jq .state)
-            case "$state" in
-              MERGED)
-                exit 0
-                ;;
-              CLOSED)
-                echo "PR #$PR_NUMBER closed without merging" >&2
+          for _ in {1..120}; do
+            if info=$(gh pr view "$PR_NUMBER" --json state,mergeStateStatus,autoMergeRequest,statusCheckRollup --jq '[.state, .mergeStateStatus, (.autoMergeRequest != null), ([.statusCheckRollup[] | select(.conclusion == "FAILURE" or .conclusion == "CANCELLED" or .conclusion == "TIMED_OUT")] | length)] | @tsv'); then
+              read -r state merge auto failed <<< "$info"
+              case "$state" in
+                MERGED)
+                  exit 0
+                  ;;
+                CLOSED)
+                  echo "PR #$PR_NUMBER closed without merging" >&2
+                  exit 1
+                  ;;
+              esac
+              if [ "$failed" -gt 0 ]; then
+                echo "Checks failed on PR #$PR_NUMBER" >&2
                 exit 1
-                ;;
-            esac
+              fi
+              [ "$auto" = true ] || gh pr merge --auto --squash "$PR_NUMBER" || true
+              [ "$merge" != BEHIND ] || gh pr update-branch "$PR_NUMBER" || true
+            fi
             sleep 10
           done
 
           echo "Timed out waiting for PR #$PR_NUMBER to merge" >&2
           exit 1
+      - if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TITLE: "update-flake-lock failed: ${{ matrix.input }}"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue list --state open --search "in:title \"$TITLE\"" --json number,title --jq '.[] | select(.title == env.TITLE) | .number' |
+            while read -r issue; do
+              gh issue close "$issue" --comment "Resolved by $RUN_URL"
+            done
       - if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
