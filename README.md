@@ -170,9 +170,16 @@ After reboot, clone the repository to `~/nix` and use `nh os switch`.
 
 ### Search
 
-`/var/lib/searx.env` holds `SEARX_SECRET_KEY`. SearXNG replaces
-`categories_as_tabs` wholesale instead of merging it, so the `files` and
-`onions` tabs work by re-listing the defaults with `onions` added.
+`/var/lib/searx.env` holds `SEARX_SECRET_KEY`. `searx-init` refuses to run
+without it, because an empty `secret_key` is accepted by SearXNG and would
+serve a broken instance.
+
+The engine list is explicit in two halves: `use_default_settings.engines.keep_only`
+is the complete inventory of what this instance serves, and the `engines` list
+only overrides what differs from upstream (the `disabled` flag, and the Tor
+proxy for the onion engines). Keep them in step when adding an engine.
+SearXNG replaces `categories_as_tabs` wholesale instead of merging it, so the
+tabs are re-listed with `onions` added.
 
 Torrent indexers (1337x, The Pirate Bay, SolidTorrents, Kickass, Nyaa, BT4G)
 run in the `files` tab over clearnet. Ahmia and Torch are `.onion` engines and
@@ -183,8 +190,17 @@ No torrents are downloaded or seeded here; it is an indexer front end only.
 
 ### State outside the config
 
-These parts of the machine change on their own schedules. Nix does not
-track them:
+These parts of the machine change on their own schedules, or have to be
+created by hand before first boot. Nix does not track them:
+
+- **The Cloudflare tunnel** is dashboard-managed. Create it, drop its
+  credentials JSON at `/var/lib/cloudflared/<TUNNEL-ID>.json`, put the same
+  UUID in `modules/features/server.nix`, and point both hostnames at it.
+- **`/var/lib/searx.env`** must exist before `searx-init` runs:
+  `sudo sh -c 'umask 077; echo SEARX_SECRET_KEY=$(openssl rand -hex 32) > /var/lib/searx.env'`.
+- **The Forgejo admin user** is not declarative, and registration is off.
+  Create it once with `forgejo admin user create --admin`; after that every
+  other account is created from the admin panel.
 
 - **m1n1, U-Boot and the device trees** are a single `m1n1/boot.bin` on the
   ESP, rewritten on every switch. Picking an older generation in the boot
