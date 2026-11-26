@@ -1,6 +1,6 @@
 { self, ... }:
 {
-  # What every NixOS GNOME machine (desktop, macbook) is made of; hosts add
+  # What every NixOS GNOME machine (desktop) is made of; hosts add
   # their hardware and extras on top.
   flake.nixosModules.workstation = _: {
     imports = [
