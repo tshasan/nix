@@ -13,6 +13,7 @@ _: {
         path = [
           pkgs.util-linux
           pkgs.rsync
+          pkgs.efibootmgr
         ];
         serviceConfig = {
           Type = "oneshot";
@@ -30,6 +31,22 @@ _: {
             fi
             umount /run/windows-esp
           done
+
+          # Firmware that finds the mirrored bootmgfw.efi registers it as a new
+          # boot entry and puts it first, which skips the systemd-boot menu.
+          # Move the entry named below back to the front of BootOrder.
+          first_label="Linux Boot Manager"
+
+          # efibootmgr lists entries as "Boot0002* <label> <path>" and the
+          # order as "BootOrder: 0004,0003,0002,0000".
+          first=$(efibootmgr | grep -F -m1 "* $first_label" | cut -c5-8)
+          order=$(efibootmgr | grep -F "BootOrder:" | cut -d' ' -f2)
+          if [ -z "$first" ]; then
+            echo "no boot entry named '$first_label', leaving BootOrder alone"
+          elif [ "''${order%%,*}" != "$first" ]; then
+            others=$(echo "$order" | tr ',' '\n' | grep -vxF "$first" | paste -sd,)
+            efibootmgr -q -o "$first''${others:+,$others}"
+          fi
         '';
       };
 
