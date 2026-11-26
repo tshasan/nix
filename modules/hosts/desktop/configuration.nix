@@ -15,6 +15,7 @@
         self.nixosModules.desktopServices
         self.nixosModules.gaming
         self.nixosModules.autoUpgrade
+        self.nixosModules.windowsDualBoot
       ];
 
       boot.loader = {

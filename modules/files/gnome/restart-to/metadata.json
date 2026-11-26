@@ -1,0 +1,6 @@
+{
+  "uuid": "restart-to@nix",
+  "name": "Restart To",
+  "description": "Adds Restart to BIOS and Restart to Windows to the power menu.",
+  "shell-version": ["49", "50", "51"]
+}
