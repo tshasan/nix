@@ -176,17 +176,16 @@ serve a broken instance.
 
 The engine list is explicit in two halves: `use_default_settings.engines.keep_only`
 is the complete inventory of what this instance serves, and the `engines` list
-only overrides what differs from upstream (the `disabled` flag, and the Tor
-proxy for the onion engines). Keep them in step when adding an engine.
-SearXNG replaces `categories_as_tabs` wholesale instead of merging it, so the
-tabs are re-listed with `onions` added.
+only overrides what differs from upstream (the `disabled` flag). Keep them in
+step when adding an engine. SearXNG replaces `categories_as_tabs` wholesale
+instead of merging it, so the tabs are re-listed in full.
 
 Torrent indexers (1337x, The Pirate Bay, SolidTorrents, Kickass, Nyaa, BT4G)
-run in the `files` tab over clearnet. Ahmia and Torch are `.onion` engines and
-go through the local Tor client on `127.0.0.1:9050` with `socks5h`, so the
-names resolve inside Tor. SearXNG refuses to start when that proxy does not
-prove to be Tor, which is why `searx.service` is ordered after `tor.service`.
-No torrents are downloaded or seeded here; it is an indexer front end only.
+run in the `files` tab over clearnet. No torrents are downloaded or seeded
+here; it is an indexer front end only. There is no Tor client on this host:
+the onion engines were its only consumer, and a client that never runs is
+one less thing that can keep `searx` from starting on a machine nobody is
+sitting next to.
 
 ### State outside the config
 
@@ -196,6 +195,9 @@ created by hand before first boot. Nix does not track them:
 - **The Cloudflare tunnel** is dashboard-managed. Create it, drop its
   credentials JSON at `/var/lib/cloudflared/<TUNNEL-ID>.json`, put the same
   UUID in `modules/features/server.nix`, and point both hostnames at it.
+- **Cloudflare Access** for `search.tshasan.com` is a dashboard policy on
+  that hostname, not a `cloudflared` or Nix setting. `git.tshasan.com` stays
+  open because Forgejo has its own login.
 - **`/var/lib/searx.env`** must exist before `searx-init` runs:
   `sudo sh -c 'umask 077; echo SEARX_SECRET_KEY=$(openssl rand -hex 32) > /var/lib/searx.env'`.
 - **The Forgejo admin user** is not declarative, and registration is off.

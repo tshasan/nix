@@ -105,9 +105,6 @@
               "kickass"
               "nyaa"
               "bt4g"
-              # onions
-              "ahmia"
-              "torch"
             ];
 
             # Only engines that differ from their upstream definition appear
@@ -125,25 +122,11 @@
                 name = "nyaa";
                 disabled = false;
               }
-              # Searx drops any `onions` engine unless it is told it uses Tor,
-              # and without the socks5h proxy the request would go out in the
-              # clear. Circuits are slow, hence the timeout.
-              {
-                name = "ahmia";
-                using_tor_proxy = true;
-                proxies = "socks5h://127.0.0.1:9050";
-                timeout = 30.0;
-              }
-              {
-                name = "torch";
-                using_tor_proxy = true;
-                proxies = "socks5h://127.0.0.1:9050";
-                timeout = 30.0;
-              }
             ];
 
             # SearXNG replaces this map instead of merging it, so the default
-            # tabs have to be repeated; only `onions` is new.
+            # tabs have to be repeated. No `onions`: that needed a Tor client,
+            # which would have been the only Tor traffic on the connection.
             categories_as_tabs = {
               general = { };
               images = { };
@@ -155,7 +138,6 @@
               science = { };
               files = { };
               "social media" = { };
-              onions = { };
             };
           };
         };
@@ -166,23 +148,10 @@
         # searx accepts, so fail the init unit instead of serving a broken
         # instance. Stat only, so the root-owned 0600 file is enough.
         searx-init.preStart = "test -s /var/lib/searx.env || { echo 'searx.env is missing or empty, see README' >&2; exit 1; }";
-
-        # searx checks at startup that its Tor proxy really is Tor, by
-        # fetching check.torproject.org through it, and refuses to serve if
-        # that fails. Without this ordering it races tor and comes up dead.
-        searx = {
-          after = [ "tor.service" ];
-          wants = [ "tor.service" ];
-        };
       };
 
-      # Tor, for the onion engines only. The module's client default already
-      # listens on 127.0.0.1:9050 with IsolateDestAddr, so there is nothing
-      # else to set: socks5h means the .onion name is resolved by Tor, which
-      # is the only way it resolves at all.
-      services.tor = {
-        enable = true;
-        client.enable = true;
-      };
+      # No services.tor: the onion engines were the only consumer, and a
+      # client that never runs is also the reason searx can no longer fail
+      # its startup Tor check on a box nobody is sitting next to.
     };
 }
