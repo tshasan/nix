@@ -48,8 +48,83 @@ _: {
             base_url = "https://search.tshasan.com/";
             secret_key = "$SEARX_SECRET_KEY";
           };
+
+          # SearXNG replaces this map instead of merging it, so the default
+          # tabs have to be repeated; only `onions` is new.
+          categories_as_tabs = {
+            general = { };
+            images = { };
+            videos = { };
+            news = { };
+            map = { };
+            music = { };
+            it = { };
+            science = { };
+            files = { };
+            "social media" = { };
+            onions = { };
+          };
+
+          engines = [
+            {
+              name = "1337x";
+              disabled = false;
+            }
+            {
+              name = "piratebay";
+              disabled = false;
+            }
+            {
+              name = "solidtorrents";
+              disabled = false;
+            }
+            {
+              name = "kickass";
+              disabled = false;
+            }
+            {
+              name = "nyaa";
+              disabled = false;
+            }
+            {
+              name = "bt4g";
+              disabled = false;
+            }
+            # Onion engines: searx drops any `onions` engine unless it is told
+            # it uses Tor, and without the socks5h proxy the request would go
+            # out in the clear. Circuits are slow, hence the timeout.
+            {
+              name = "ahmia";
+              disabled = false;
+              using_tor_proxy = true;
+              proxies = "socks5h://127.0.0.1:9050";
+              timeout = 30.0;
+            }
+            {
+              name = "torch";
+              disabled = false;
+              using_tor_proxy = true;
+              proxies = "socks5h://127.0.0.1:9050";
+              timeout = 30.0;
+            }
+          ];
         };
       };
     };
+
+    # Tor, for the onion engines only. The module's client default already
+    # listens on 127.0.0.1:9050 with IsolateDestAddr, so there is nothing else
+    # to set: socks5h means the .onion name is resolved by Tor, which is the
+    # only way it resolves at all.
+    services.tor = {
+      enable = true;
+      client.enable = true;
+    };
+
+    # searx checks at startup that its Tor proxy really is Tor, by fetching
+    # check.torproject.org through it, and refuses to serve if that fails.
+    # Without this ordering it races tor and comes up dead.
+    systemd.services.searx.after = [ "tor.service" ];
+    systemd.services.searx.wants = [ "tor.service" ];
   };
 }

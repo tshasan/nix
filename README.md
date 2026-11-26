@@ -168,6 +168,19 @@ GitHub itself.
 
 After reboot, clone the repository to `~/nix` and use `nh os switch`.
 
+### Search
+
+`/var/lib/searx.env` holds `SEARX_SECRET_KEY`. SearXNG replaces
+`categories_as_tabs` wholesale instead of merging it, so the `files` and
+`onions` tabs work by re-listing the defaults with `onions` added.
+
+Torrent indexers (1337x, The Pirate Bay, SolidTorrents, Kickass, Nyaa, BT4G)
+run in the `files` tab over clearnet. Ahmia and Torch are `.onion` engines and
+go through the local Tor client on `127.0.0.1:9050` with `socks5h`, so the
+names resolve inside Tor. SearXNG refuses to start when that proxy does not
+prove to be Tor, which is why `searx.service` is ordered after `tor.service`.
+No torrents are downloaded or seeded here; it is an indexer front end only.
+
 ### State outside the config
 
 These parts of the machine change on their own schedules. Nix does not
