@@ -4,6 +4,8 @@
     imports = [
       self.nixosModules.macbookHardware
       self.nixosModules.workstation
+      self.nixosModules.ssh
+      self.nixosModules.server
     ];
 
     boot.loader = {
