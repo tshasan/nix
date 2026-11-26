@@ -59,6 +59,10 @@
             # Trust HM-installed extensions — don't sit disabled awaiting approval
             "extensions.autoDisableScopes" = 0;
 
+            # Let the tarball's updater install releases unattended
+            "app.update.auto" = true;
+            "app.update.background.scheduling.enabled" = true;
+
             # Telemetry / data collection — off
             "toolkit.telemetry.enabled" = false;
             "toolkit.telemetry.archive.enabled" = false;
