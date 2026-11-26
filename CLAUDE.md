@@ -131,7 +131,9 @@ paths, SSH keys, and the flake location. Modules read those shared values from
 
 NixOS reads the personal Git name and email from `flake.lib.user`. The
 `work-mac` profile must not contain a work identity; it includes the untracked
-`~/.config/git/work.conf` for every repository. Keep
+`~/.config/git/work.conf` for every repository, and an `includeIf` switches
+this checkout back to the personal identity. The `git-identity` pre-commit hook
+rejects commits recorded under any other email. Keep
 `user.useConfigOnly=true` on both platforms so a missing identity cannot be
 guessed.
 
@@ -174,7 +176,8 @@ guessed.
   tooling must never appear in committed files, commit metadata, or
   sample/snippet output. The committed `.gitleaks.toml` documents the mechanism
   with placeholder patterns; real blocked patterns live in the untracked
-  `.gitleaks.local.toml`. If unsure, leave it out.
+  `.gitleaks.local.toml`, and the hook fails outside the Nix sandbox when that
+  file is missing. If unsure, leave it out.
 - **Keep symbols statically resolvable.** No `with pkgs;` / `with lib;` (or similar dynamic-scope tricks) at module top-level or around `let` / option bodies — use explicit `pkgs.foo` / `lib.foo` references. The one exception is nixpkgs-style `with pkgs; [ ... ]` (or `with pkgs; { ... }`) **immediately surrounding a list/attrset literal of package names** — the `with` scope dies at the closing bracket, statix accepts it, and the rest of nixpkgs writes package lists this way. Anywhere else, spell it out. When a custom option is genuinely unavoidable (see above), it must use `lib.mkOption` with an explicit `type =` (a concrete `lib.types.*`); no untyped options, no `freeformType` escape hatches. `nix flake check` is the source of truth — don't silence its output to make CI green.
 - **`nixfmt` is the only Nix formatter.** Don't reach for `nixpkgs-fmt`, `alejandra`, or hand-formatting. Run `nix fmt` (treefmt-nix wraps `nixfmt`).
 

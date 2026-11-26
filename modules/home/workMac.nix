@@ -48,6 +48,16 @@
           required = true;
         };
         include.path = "~/.config/git/work.conf";
+        # work.conf applies to every repository, so this public repo needs its
+        # own identity. includeIf sorts after include, so it wins here.
+        "includeIf \"gitdir:~/${self.lib.user.flakeCheckout}/\"".path = "~/.config/git/personal.conf";
+      };
+
+      xdg.configFile."git/personal.conf".text = lib.generators.toGitINI {
+        user = {
+          name = self.lib.user.fullName;
+          inherit (self.lib.user) email;
+        };
       };
 
       home.file = {
