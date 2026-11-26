@@ -24,6 +24,7 @@
           configurationLimit = 5;
           # Otherwise anyone at the boot menu can append init=/bin/sh.
           editor = false;
+          consoleMode = "max";
         };
         efi.canTouchEfiVariables = true;
         timeout = 1;
