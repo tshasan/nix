@@ -3,7 +3,9 @@ name: update-flake-lock
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    # 09:00 UTC = 01:00 PST / 02:00 PDT: finish before the personal-mac
+    # 03:00 auto-switch so the day's updates can be applied overnight.
+    - cron: '0 9 * * *'
 
 jobs:
   lockfile:
