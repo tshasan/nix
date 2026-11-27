@@ -8,7 +8,7 @@ platform boundary:
 
 | Target | Packages and applications | Dotfiles |
 | --- | --- | --- |
-| `desktop`, `vm`, `macbook` | NixOS and Home Manager | Home Manager |
+| `desktop`, `vm`, `forge` | NixOS and Home Manager | Home Manager |
 | `personal-mac` | nix-darwin and Home Manager; Homebrew for GUI casks only | Home Manager |
 | `work-mac` | Homebrew | Home Manager |
 
@@ -23,7 +23,8 @@ defaults, and Homebrew is limited to the casks declared in
 
 - `desktop`: the main AMD/NVIDIA NixOS workstation.
 - `vm`: a smaller NixOS configuration for testing.
-- `macbook`: a 13" M1 MacBook Pro running NixOS on Asahi Linux.
+- `forge`: the 13" M1 MacBook Pro running NixOS on Asahi Linux, kept shut and
+  plugged in as a headless server for Forgejo and SearXNG.
 - `personal-mac`: full nix-darwin system with Home Manager integrated as a
   darwin module.
 - `work-mac`: standalone Home Manager dotfiles; no nix-darwin.
@@ -42,7 +43,7 @@ modules/
   user.nix           personal identity, home paths, and flake location
   common/            shared NixOS modules
   features/          optional NixOS features
-  hosts/             desktop, vm, macbook, personal-mac, and work-mac outputs
+  hosts/             desktop, vm, forge, personal-mac, and work-mac outputs
   home/              Home Manager modules
   files/             source-controlled dotfiles
 ```
@@ -85,9 +86,9 @@ once a day it rebuilds and switches to the latest flake output unattended,
 without rebooting. A failed run sends a desktop notification; details are in
 `journalctl -u nixos-upgrade`. `vm` does not have this enabled.
 
-## Asahi (macbook)
+## Asahi (forge)
 
-`macbook` is a 13" M1 MacBook Pro (MacBookPro17,1, 8 GB, 256 GB) running
+`forge` is a 13" M1 MacBook Pro (MacBookPro17,1, 8 GB, 256 GB) running
 NixOS on Asahi through
 [nixos-apple-silicon](https://github.com/nix-community/nixos-apple-silicon).
 It runs GNOME on a LUKS2-encrypted root with the same home modules as
@@ -158,7 +159,7 @@ the same 8 GiB swapfile the installed system will adopt:
 mkdir -p /mnt/var/lib /mnt/tmp
 dd if=/dev/zero of=/mnt/var/lib/swapfile bs=1M count=8192 status=progress
 chmod 600 /mnt/var/lib/swapfile && mkswap /mnt/var/lib/swapfile && swapon /mnt/var/lib/swapfile
-TMPDIR=/mnt/tmp nixos-install --no-root-passwd --flake github:tshasan/nix#macbook
+TMPDIR=/mnt/tmp nixos-install --no-root-passwd --flake github:tshasan/nix#forge
 nixos-enter --root /mnt -c 'passwd taimur'
 ```
 
@@ -167,10 +168,41 @@ GitHub itself.
 
 After reboot, clone the repository to `~/nix` and use `nh os switch`.
 
+### Search
+
+`/var/lib/searx.env` holds `SEARX_SECRET_KEY`. `searx-init` refuses to run
+without it, because an empty `secret_key` is accepted by SearXNG and would
+serve a broken instance.
+
+The engine list is explicit in two halves: `use_default_settings.engines.keep_only`
+is the complete inventory of what this instance serves, and the `engines` list
+only overrides what differs from upstream (the `disabled` flag). Keep them in
+step when adding an engine. SearXNG replaces `categories_as_tabs` wholesale
+instead of merging it, so the tabs are re-listed in full.
+
+Torrent indexers (1337x, The Pirate Bay, SolidTorrents, Kickass, Nyaa, BT4G)
+run in the `files` tab over clearnet. No torrents are downloaded or seeded
+here; it is an indexer front end only. There is no Tor client on this host:
+the onion engines were its only consumer, and a client that never runs is
+one less thing that can keep `searx` from starting on a machine nobody is
+sitting next to.
+
 ### State outside the config
 
-These parts of the machine change on their own schedules. Nix does not
-track them:
+These parts of the machine change on their own schedules, or have to be
+created by hand before first boot. Nix does not track them:
+
+- **The Cloudflare tunnel** is dashboard-managed. Create it, drop its
+  credentials JSON at `/var/lib/cloudflared/<TUNNEL-ID>.json`, put the same
+  UUID in `modules/features/server.nix`, and point both hostnames at it.
+- **Cloudflare Access** for `search.tshasan.com` is a dashboard policy on
+  that hostname, not a `cloudflared` or Nix setting. `git.tshasan.com` stays
+  open because Forgejo has its own login.
+- **`/var/lib/searx.env`** must exist before `searx-init` runs:
+  `sudo sh -c 'umask 077; echo SEARX_SECRET_KEY=$(openssl rand -hex 32) > /var/lib/searx.env'`.
+- **The Forgejo admin user** is not declarative, and registration is off.
+  Create it once with `forgejo admin user create --admin`; after that every
+  other account is created from the admin panel.
 
 - **m1n1, U-Boot and the device trees** are a single `m1n1/boot.bin` on the
   ESP, rewritten on every switch. Picking an older generation in the boot

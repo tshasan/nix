@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.nixosModules.macbookHardware =
+  flake.nixosModules.forgeHardware =
     { lib, modulesPath, ... }:
     {
       imports = [

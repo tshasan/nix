@@ -1,0 +1,44 @@
+{
+  "lastChangelogVersion": "1.6.1",
+  "defaultProvider": "openrouter",
+  "defaultModel": "deepseek/deepseek-v4.1-flash-1017",
+  "packages": [
+    "npm:pi-mcp-adapter",
+    "npm:billion-context",
+    "npm:pi-web-access",
+    "npm:pi-init",
+    "npm:pi-cache-optimizer",
+    "npm:pi-session-name",
+    "npm:@lanlance/pi-recap",
+    "npm:@mohndoe/pi-atlas",
+    "npm:@dietrichgebert/ponytail",
+    "npm:@narumitw/pi-goal",
+    "npm:@narumitw/pi-plan-mode",
+    "npm:@quintinshaw/pi-dynamic-workflows",
+    "npm:@trevonistrevon/pi-loop",
+    "npm:pi-dsml",
+    "npm:statusline-pi",
+    {
+      "source": "npm:pi-tiered-router",
+      "extensions": [
+        "-extensions/model-router/index.ts"
+      ],
+      "skills": [
+        "-skills/model-router/SKILL.md"
+      ]
+    }
+  ],
+  "extensions": [
+    "-builtin:mcp"
+  ],
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-mcp-adapter\",\"scope\":\"user\"}": "7.0.1",
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.48.0",
+    "{\"source\":\"npm:@mohndoe/pi-atlas\",\"scope\":\"user\"}": "0.2.1",
+    "{\"source\":\"npm:@narumitw/pi-goal\",\"scope\":\"user\"}": "0.55.5",
+    "{\"source\":\"npm:@narumitw/pi-plan-mode\",\"scope\":\"user\"}": "0.62.0",
+    "{\"source\":\"npm:@trevonistrevon/pi-loop\",\"scope\":\"user\"}": "0.8.2",
+    "{\"source\":\"npm:pi-tiered-router\",\"scope\":\"user\"}": "0.2.0",
+    "{\"source\":\"npm:pi-cache-optimizer\",\"scope\":\"user\"}": "2.10.8"
+  }
+}

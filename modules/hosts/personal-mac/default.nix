@@ -30,6 +30,9 @@
               "@admin"
               self.lib.user.darwinUsername
             ];
+            # Use every core for local builds on the M3 Pro; 0 means "all".
+            cores = 0;
+            max-jobs = "auto";
           };
 
           optimise.automatic = true;
@@ -82,6 +85,10 @@
 
             CustomUserPreferences = {
               "com.apple.AdLib".allowApplePersonalizedAdvertising = false;
+              "com.apple.desktopservices" = {
+                DSDontWriteNetworkStores = true;
+                DSDontWriteUSBStores = true;
+              };
               "com.izotope".EnableAnalytics = 0;
               "com.izotope.RX11".CheckForUpdates = false;
               "com.izotope.rx11".CheckForUpdates = false;
