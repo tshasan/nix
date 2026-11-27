@@ -177,7 +177,7 @@
                 # Catches the pipeline stalling while each switch still
                 # succeeds, e.g. the flake-lock workflow not running.
                 age=$(( ($(/bin/date +%s) - $(/bin/cat /etc/nixpkgs-last-modified)) / 86400 ))
-                if [ "$age" -gt 7 ]; then
+                if [ "$age" -gt 1 ]; then
                   notify "nix-darwin is out of date" "The running system's nixpkgs is $age days old"
                 fi
                 exit "$result"
@@ -187,6 +187,10 @@
             StartCalendarInterval = [
               {
                 Hour = 3;
+                Minute = 0;
+              }
+              {
+                Hour = 15;
                 Minute = 0;
               }
             ];
