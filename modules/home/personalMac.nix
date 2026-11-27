@@ -36,7 +36,10 @@
         ];
 
         sessionVariables.NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
-        sessionPath = [ "${config.home.homeDirectory}/.npm-global/bin" ];
+        sessionPath = [
+          "${config.home.homeDirectory}/.local/bin"
+          "${config.home.homeDirectory}/.npm-global/bin"
+        ];
 
         # Live symlinks to the checkout so pi settings and patches survive
         # `pi update` without needing a home-manager switch.
