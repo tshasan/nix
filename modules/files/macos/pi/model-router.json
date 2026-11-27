@@ -1,0 +1,14 @@
+{
+  "roles": {
+    "planner": { "model": "openrouter/deepseek/deepseek-v4.1-flash-1017", "thinking": "high" },
+    "validator": { "model": "ollama/huihui_ai/Qwen3.8-abliterated:27b-q5_K", "thinking": "medium" },
+    "executor": { "model": "ollama/huihui_ai/Qwen3.8-abliterated:27b-q5_K", "thinking": "medium" },
+    "toolParser": { "model": "ollama/huihui_ai/Qwen3.8-abliterated:27b-q5_K", "thinking": "off" }
+  },
+  "fallbacks": {
+    "planner": ["ollama/huihui_ai/Qwen3.8-abliterated:27b-q5_K"],
+    "validator": ["skip"],
+    "executor": ["openrouter/deepseek/deepseek-v4.1-flash-1017"],
+    "toolParser": ["openrouter/deepseek/deepseek-v4.1-flash-1017"]
+  }
+}

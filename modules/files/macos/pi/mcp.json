@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "AbletonMCP": {
+      "command": "uvx",
+      "args": ["ableton-mcp"],
+      "env": { "ABLETON_MCP_DISABLE_TELEMETRY": "true" }
+    }
+  }
+}
