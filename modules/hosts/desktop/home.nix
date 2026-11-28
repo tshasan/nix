@@ -1,6 +1,6 @@
 _: {
   # Home settings tied to this machine: its x86_64-only apps and binary
-  # builds, the NVIDIA VA-API stack, 32 GB of RAM, and a 180 Hz display.
+  # builds, the NVIDIA VA-API stack, 32 GB of RAM, and a 4K 165 Hz display.
   flake.homeModules.desktopHome =
     { pkgs, ... }:
     {
@@ -101,7 +101,7 @@ _: {
             "gfx.webrender.compositor.force-enabled" = false;
             "widget.dmabuf.force-enabled" = false;
 
-            # 180 Hz feel
+            # 165 Hz feel
             "general.smoothScroll.msdPhysics.enabled" = true;
             "gfx.webrender.precache-shaders" = true;
 
