@@ -46,6 +46,13 @@
       hardware.i2c.enable = true;
       services.smartd.enable = true;
 
+      # The AW3226Q's EDID marks 4K@60 as preferred, so without this the GDM
+      # greeter runs at 60 Hz and 1.0 scale instead of the session's mode.
+      systemd.tmpfiles.rules = [
+        "d /var/lib/gdm/seat0/config - gdm gdm -"
+        "L+ /var/lib/gdm/seat0/config/monitors.xml - - - - ${../../files/gnome/monitors-desktop.xml}"
+      ];
+
       networking = {
         hostName = "desktop";
         networkmanager.enable = true;
