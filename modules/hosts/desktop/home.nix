@@ -94,6 +94,10 @@ _: {
       };
 
       programs = {
+        gnome-shell.extensions = [
+          { package = pkgs.gnomeExtensions.veld-monitor-controls; }
+        ];
+
         firefox = {
           profiles."default".settings = {
             # Hardware video decode (NVIDIA-VAAPI is configured at system level).

@@ -44,6 +44,8 @@
       ];
 
       hardware.i2c.enable = true;
+      # Veld Monitor Controls falls back to spawning ddcutil per write without it.
+      services.dbus.packages = [ pkgs.ddcutil-service ];
       services.smartd.enable = true;
 
       # The AW3226Q's EDID marks 4K@60 as preferred, so without this the GDM
