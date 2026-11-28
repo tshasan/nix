@@ -39,9 +39,12 @@
         pkgs.sbctl
         pkgs.efibootmgr
         pkgs.ddcutil
+        pkgs.nvme-cli
+        pkgs.i2c-tools
       ];
 
       hardware.i2c.enable = true;
+      services.smartd.enable = true;
 
       networking = {
         hostName = "desktop";
