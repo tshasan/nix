@@ -38,7 +38,10 @@
       environment.systemPackages = [
         pkgs.sbctl
         pkgs.efibootmgr
+        pkgs.ddcutil
       ];
+
+      hardware.i2c.enable = true;
 
       networking = {
         hostName = "desktop";
