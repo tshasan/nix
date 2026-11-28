@@ -86,6 +86,13 @@ _: {
         };
       };
 
+      # The AW3226Q's Tandem WOLED panel drops the white subpixel for a plain
+      # RGB stripe, so subpixel antialiasing renders text without fringing.
+      dconf.settings."org/gnome/desktop/interface" = {
+        font-antialiasing = "rgba";
+        font-rgba-order = "rgb";
+      };
+
       programs = {
         firefox = {
           profiles."default".settings = {
