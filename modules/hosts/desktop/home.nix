@@ -108,6 +108,9 @@ _: {
             display-reset = reset;
             hdr-on = "${gdctl} --color-mode bt2100";
             hdr-off = reset;
+            # Monitor input via DDC/CI (VCP 0x60): 0x11 = HDMI-1 (PS5), 0x0f = DP-1 (this PC).
+            ps5 = "ddcutil setvcp 60 0x11";
+            pc = "ddcutil setvcp 60 0x0f";
           };
 
         gnome-shell.extensions = [
