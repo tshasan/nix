@@ -94,6 +94,22 @@ _: {
       };
 
       programs = {
+        # The known-good baseline in MONITOR.md: 4K@165 VRR at 1.25× in SDR,
+        # then the OSD values once the monitor resyncs. The mode is spelled out
+        # because gdctl otherwise falls back to the EDID's 4K@60. The preset
+        # goes last: writes that land while it is still applying can knock it
+        # to 6500 K.
+        zsh.shellAliases =
+          let
+            gdctl = "${pkgs.mutter}/bin/gdctl set --persistent --logical-monitor --primary --scale 1.25 --monitor DP-3 --mode 3840x2160@164.991+vrr";
+            reset = "${gdctl} --color-mode default && sleep 3 && ddcutil setvcp DC 00 10 100 12 75 87 50 && sleep 1 && ddcutil setvcp 14 01";
+          in
+          {
+            display-reset = reset;
+            hdr-on = "${gdctl} --color-mode bt2100";
+            hdr-off = reset;
+          };
+
         gnome-shell.extensions = [
           { package = pkgs.gnomeExtensions.veld-monitor-controls; }
         ];
